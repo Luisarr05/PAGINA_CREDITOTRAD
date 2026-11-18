@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estructuración de Deuda & Amortizaciones Consolidadas Multibanco</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- ExcelJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+  <style>
+    :root {
+      --bbva-blue: #004481; 
+      --bbva-light-blue: #009ee3; 
+      --bbva-navy: #072146;
+    }
+
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+    }
+    
+    body { 
+      background: radial-gradient(circle at 50% 30%, #00d2ff 0%, #0052d4 40%, #030b1e 90%) !important;
+      background-attachment: fixed !important;
+      color: #ffffff; 
+      min-height: 100vh; 
+      overflow-x: hidden; 
+      padding-bottom: 80px; 
+    }
+
+    /* CAPA DE BALONES ANIMADOS EN EL FONDO */
+    .background-balls {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 1;
+    }
+
+    .ball {
+      position: absolute;
+      top: 100vh;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      opacity: 0.85;
+      filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.8));
+      animation-name: floatDiagonal;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      animation-fill-mode: backwards;
+    }
+
+    .ball:nth-child(1) { background-image: url('balon.avif'); left: 2%; width: 110px; height: 110px; animation-duration: 10s; animation-delay: 0s; }
+    .ball:nth-child(2) { background-image: url('balon_2.avif'); left: 10%; width: 150px; height: 150px; animation-duration: 14s; animation-delay: 3s; }
+    .ball:nth-child(3) { background-image: url('balon_3.avif'); left: 18%; width: 90px; height: 90px; animation-duration: 9s; animation-delay: 1s; }
+    .ball:nth-child(4) { background-image: url('balon_4.avif'); left: 26%; width: 170px; height: 170px; animation-duration: 16s; animation-delay: 5s; }
+    .ball:nth-child(5) { background-image: url('balon_5.avif'); left: 34%; width: 120px; height: 120px; animation-duration: 11s; animation-delay: 2s; }
+    .ball:nth-child(6) { background-image: url('balon_6.avif'); left: 42%; width: 180px; height: 180px; animation-duration: 17s; animation-delay: 4s; }
+    .ball:nth-child(7) { background-image: url('balon_7.avif'); left: 50%; width: 100px; height: 100px; animation-duration: 8.5s; animation-delay: 0.5s; }
+    .ball:nth-child(8) { background-image: url('balon_8.avif'); left: 58%; width: 160px; height: 160px; animation-duration: 13s; animation-delay: 2.5s; }
+    .ball:nth-child(9) { background-image: url('balon_9.avif'); left: 66%; width: 130px; height: 130px; animation-duration: 15s; animation-delay: 1.5s; }
+    .ball:nth-child(10) { background-image: url('balon_10.avif'); left: 74%; width: 175px; height: 175px; animation-duration: 18s; animation-delay: 3.5s; }
+    .ball:nth-child(11) { background-image: url('balon_11.avif'); left: 82%; width: 115px; height: 115px; animation-duration: 10.5s; animation-delay: 4.5s; }
+    .ball:nth-child(12) { background-image: url('balon_12.avif'); left: 88%; width: 140px; height: 140px; animation-duration: 12s; animation-delay: 1s; }
+    .ball:nth-child(13) { background-image: url('balon_13.avif'); left: 93%; width: 95px; height: 95px; animation-duration: 9.5s; animation-delay: 6s; }
+
+    @keyframes floatDiagonal {
+      0% { transform: translateY(10vh) translateX(0) rotate(0deg); }
+      100% { transform: translateY(-130vh) translateX(120px) rotate(360deg); }
+    }
+
+    .bg-ambient-glow {
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 1000px; height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 82, 212, 0.1) 50%, rgba(0,0,0,0) 80%);
+      pointer-events: none; z-index: 1;
+    }
+
+    /* TARJETAS GLASSMORPHISM CON BORDES GLOW NEÓN */
+    .glass-card {
+      background: rgba(3, 11, 30, 0.75) !important;
+      border: 1px solid rgba(0, 212, 255, 0.35) !important;
+      backdrop-filter: blur(16px) !important;
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+      transition: all 0.3s ease;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(0, 212, 255, 0.65) !important;
+      box-shadow: 0 15px 45px 0 rgba(0, 212, 255, 0.25);
+    }
+
+    /* BOTÓN REGRESAR GLASSMORPHISM */
+    .btn-back {
+      background: rgba(3, 11, 30, 0.6);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      backdrop-filter: blur(10px);
+      color: #00d4ff;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: rgba(0, 212, 255, 0.8);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+      transform: translateX(-3px);
+    }
+
+    /* BOTÓN PRINCIPAL CON EFECTO NEÓN */
+    .btn-action {
+      background: linear-gradient(135deg, #00d4ff 0%, #0052d4 50%, #7928ca 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease infinite;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .input-glass {
+      background: rgba(7, 25, 56, 0.7);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+    .input-glass:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+      background: rgba(7, 30, 70, 0.9);
+    }
+
+    /* BADGES DE BANCOS */
+    .badge-bank {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-bbva { background: rgba(0, 158, 227, 0.2); color: #38bdf8; border: 1px solid rgba(0, 158, 227, 0.4); }
+    .badge-santander { background: rgba(236, 0, 0, 0.2); color: #fca5a5; border: 1px solid rgba(236, 0, 0, 0.4); }
+    .badge-scotia { background: rgba(220, 38, 38, 0.25); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.5); }
+    .badge-bajio { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .badge-banorte { background: rgba(185, 28, 28, 0.2); color: #fca5a5; border: 1px solid rgba(185, 28, 28, 0.4); }
+    .badge-otros { background: rgba(148, 163, 184, 0.2); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.4); }
+
+    /* CONTENEDOR DE TABLA OPTIMIZADO */
+    .table-container {
+      max-height: 580px;
+      overflow-y: auto;
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-container::-webkit-scrollbar-track { background: rgba(3, 11, 30, 0.5); }
+    .table-container::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.4); border-radius: 4px; }
+    .table-container::-webkit-scrollbar-thumb:hover { background: rgba(0, 212, 255, 0.8); }
+
+    .table-custom {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.78rem;
+    }
+
+    .table-custom th {
+      position: sticky;
+      top: 0;
+      background: #031330;
+      color: #38bdf8;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 11px 10px;
+      border-bottom: 2px solid rgba(0, 212, 255, 0.4);
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .table-custom td {
+      padding: 8px 10px;
+      border-bottom: 1px dashed rgba(0, 212, 255, 0.15);
+      white-space: nowrap;
+      color: #cbd5e1;
+    }
+
+    .table-custom tr:hover td {
+      background: rgba(0, 212, 255, 0.08);
+      color: #ffffff;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="relative z-10">
+
+  <!-- FONDO CON BALONES FLOTANTES NEÓN -->
+  <div class="background-balls">
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+    <div class="ball"></div>
+  </div>
+
+  <div class="bg-ambient-glow"></div>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="container mx-auto px-4 py-8 max-w-[1650px] relative z-10">
+    
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <div class="flex items-center justify-between mb-6 animate__animated animate__fadeInDown">
+      <div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-bold tracking-widest uppercase shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        Modelo de Estructuración M
+      </div>
+
+      <div class="px-3 py-1 rounded-full bg-blue-900/40 border border-blue-400/30 text-xs font-mono text-cyan-300">
+        AMORTIZACIÓN CONSOLIDADA MULTIBANCO
+      </div>
+    </div>
+
+    <!-- HEADER CON TÍTULO IMPACTANTE -->
+    <header class="text-center mb-8 animate__animated animate__fadeInDown">
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-2">
+        Tablas de Amortización <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-sky-200 to-indigo-300">Consolidadas Multibanco</span>
+      </h1>
+      <p class="text-slate-300 text-xs md:text-sm max-w-2xl mx-auto font-normal">
+        Consolidación de deuda financiera y proyección de pagos unificada mes con mes (BBVA, Scotiabank, Santander, BanBajío, Banorte y otros).
+      </p>
+
+      <!-- BOTONES DE VISUALIZACIÓN / SUPUESTOS PREVIOS -->
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-4">
+        <span class="text-xs text-slate-300 font-semibold mr-1 flex items-center gap-1.5">
+          <i class="fas fa-flask text-cyan-300"></i> Probar antes de guardar:
+        </span>
+        <a href="AMORTIZACION%20LINEAL.html" target="_blank" 
+           class="px-4 py-2 rounded-xl bg-sky-950/80 hover:bg-sky-800 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition flex items-center gap-2 shadow-lg">
+          <i class="fas fa-chart-line text-cyan-400"></i>
+          <span>Visualizar Supuesto Lineal</span>
+        </a>
+        <a href="AMORTIZACION%20CRECIENTE.html" target="_blank" 
+           class="px-4 py-2 rounded-xl bg-indigo-950/80 hover:bg-indigo-800 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition flex items-center gap-2 shadow-lg">
+          <i class="fas fa-layer-group text-indigo-300"></i>
+          <span>Visualizar Supuesto Creciente</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- PANEL PRINCIPAL DE CONTROL: BANQUERO Y SELECCIÓN DE CRÉDITOS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+      
+      <!-- COLUMNA IZQUIERDA: FILTRO Y ALTA DE CRÉDITOS -->
+      <div class="lg:col-span-5 space-y-5 animate__animated animate__fadeInLeft">
+        
+        <!-- BÚSQUEDA POR BANQUERO / CLIENTE -->
+        <section class="glass-card rounded-2xl p-5 border border-cyan-500/30">
+          <div class="flex items-center gap-2 border-b border-cyan-500/30 pb-3 mb-4">
+            <div class="p-2 bg-cyan-500/20 text-cyan-300 rounded-lg">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <h2 class="text-sm font-extrabold tracking-wider uppercase text-cyan-300">Banquero / Asignación de Créditos</h2>
+          </div>
+          
+          <div class="space-y-3.5 text-xs">
+            <div>
+              <label class="block font-semibold text-slate-300 mb-1">Nombre del Banquero / Ejecutivo (*)</label>
+              <div class="flex gap-2">
+                <input type="text" id="filtroBanquero" placeholder="Ingrese nombre del banquero..." value="" 
+                       onkeypress="if(event.key==='Enter') buscarCreditosPorBanqueroJS()"
+                       class="w-full input-glass rounded-xl px-3 py-2.5 text-xs font-mono font-bold uppercase placeholder:normal-case placeholder:font-normal placeholder:text-slate-400">
+                <button onclick="buscarCreditosPorBanqueroJS()" class="btn-action text-white font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-lg shrink-0">
+                  <i class="fas fa-search"></i> Cargar
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <label class="block font-semibold text-slate-300 mb-1">Filtrar por No. Cliente</label>
+                <input type="text" id="filtroNoCliente" placeholder="Ej. 37943836" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono" oninput="filtrarListaCreditosEnMemoria()">
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-300 mb-1">Filtrar por Banco</label>
+                <select id="filtroBanco" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono font-semibold" onchange="filtrarListaCreditosEnMemoria()">
+                  <option value="TODOS">TODOS LOS BANCOS</option>
+                  <option value="BBVA">BBVA</option>
+                  <option value="SANTANDER">SANTANDER</option>
+                  <option value="SCOTIABANK">SCOTIABANK</option>
+                  <option value="BANBAJIO">BANBAJÍO</option>
+                  <option value="BANORTE">BANORTE</option>
+                  <option value="OTROS">OTROS</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex justify-between items-center pt-2">
+              <span id="statusCargaCreditos" class="text-[11px] text-slate-400">
+                <i class="fas fa-info-circle text-sky-400"></i> Ingrese el banquero para consultar sus créditos registrados.
+              </span>
+              <button onclick="abrirModalNuevoCredito()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
+                <i class="fas fa-plus-circle"></i> Nuevo Crédito
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- BANDEJA DE CRÉDITOS REGISTRADOS PARA SELECCIÓN -->
+        <section class="glass-card rounded-2xl p-5 border border-cyan-500/30">
+          <div class="flex justify-between items-center border-b border-cyan-500/20 pb-3 mb-3">
+            <div>
+              <h2 class="text-sm font-extrabold tracking-wider uppercase text-white flex items-center gap-2">
+                <i class="fas fa-list-check text-cyan-300"></i> Créditos Disponibles para Consolidar
+              </h2>
+              <p class="text-[11px] text-slate-300">Selecciona los créditos que integrarán la corrida consolidada.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="seleccionarTodosCreditos(true)" class="text-[11px] text-cyan-300 hover:underline font-semibold">Todos</button>
+              <span class="text-slate-500">|</span>
+              <button onclick="seleccionarTodosCreditos(false)" class="text-[11px] text-cyan-300 hover:underline font-semibold">Ninguno</button>
+            </div>
+          </div>
+
+          <!-- LISTA CON SCROLL -->
+          <div id="contenedorListaCreditos" class="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+            <div class="p-6 text-center text-slate-400 text-xs">
+              <i class="fas fa-inbox text-2xl text-slate-500 mb-2 block"></i>
+              Sin créditos cargados. Ingrese el nombre del banquero arriba y presione <b>Cargar</b>.
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-cyan-500/20 mt-3 flex justify-between items-center">
+            <span class="text-xs text-slate-300 font-semibold" id="labelCreditosSeleccionados">0 créditos seleccionados</span>
+            <button onclick="ejecutarConsolidacion()" class="btn-action text-white px-5 py-2.5 rounded-xl font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg">
+              <i class="fas fa-calculator"></i> Consolidar Tablas
+            </button>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- COLUMNA DERECHA: KPIS RESUMEN Y PERFIL DE AMORTIZACIÓN -->
+      <div class="lg:col-span-7 space-y-5 animate__animated animate__fadeInRight">
+        
+        <!-- TARJETAS DE KPIS CONSOLIDADOS -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          
+          <div class="glass-card rounded-2xl p-4 border border-cyan-400/40 bg-gradient-to-br from-cyan-950/60 to-blue-950/80">
+            <span class="text-[10px] text-cyan-300 uppercase font-extrabold tracking-wider block">Deuda Total Consolidada</span>
+            <span class="text-lg md:text-xl font-black font-mono text-white mt-1 block" id="kpiDeudaTotal">$0.00</span>
+            <span class="text-[10px] text-slate-400" id="kpiNumBancos">0 Bancos Participantes</span>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 border border-sky-400/40 bg-gradient-to-br from-sky-950/60 to-blue-950/80">
+            <span class="text-[10px] text-sky-300 uppercase font-extrabold tracking-wider block">Deuda con BBVA</span>
+            <span class="text-lg md:text-xl font-black font-mono text-cyan-300 mt-1 block" id="kpiDeudaBBVA">$0.00</span>
+            <span class="text-[10px] text-slate-400" id="kpiPctBBVA">0% del pasivo total</span>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 border border-amber-400/40 bg-gradient-to-br from-amber-950/40 to-blue-950/80">
+            <span class="text-[10px] text-amber-300 uppercase font-extrabold tracking-wider block">Deuda Otros Bancos</span>
+            <span class="text-lg md:text-xl font-black font-mono text-amber-300 mt-1 block" id="kpiDeudaOtros">$0.00</span>
+            <span class="text-[10px] text-slate-400" id="kpiPctOtros">0% (Scotia, Sant, Bajío...)</span>
+          </div>
+
+          <div class="glass-card rounded-2xl p-4 border border-emerald-400/40 bg-gradient-to-br from-emerald-950/60 to-blue-950/80">
+            <span class="text-[10px] text-emerald-300 uppercase font-extrabold tracking-wider block">Vida Media Consolidada</span>
+            <span class="text-lg md:text-xl font-black font-mono text-emerald-300 mt-1 block" id="kpiVidaMediaConsolidada">0.00</span>
+            <span class="text-[10px] text-slate-400">Años ponderados</span>
+          </div>
+
+        </div>
+
+        <!-- DESGLOSE RESUMIDO POR BANCO -->
+        <section class="glass-card rounded-2xl p-5 border border-cyan-500/30">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-sm font-extrabold tracking-wider uppercase text-white flex items-center gap-2">
+              <i class="fas fa-chart-pie text-cyan-300"></i> Distribución de Saldo y Amortización por Entidad Bancaria
+            </h2>
+            <span class="text-[10px] text-slate-400 font-mono" id="labelRangoFechas">Vigencia: Sin datos</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left" id="tablaResumenBancos">
+              <thead>
+                <tr class="bg-cyan-950/80 text-cyan-300 font-bold border-b border-cyan-500/30">
+                  <th class="p-2">BANCO</th>
+                  <th class="p-2 text-center">N° CRÉDITOS</th>
+                  <th class="p-2 text-right">MONTO TOTAL ($)</th>
+                  <th class="p-2 text-right">PARTICIPACIÓN (%)</th>
+                  <th class="p-2 text-right">INTERÉS ESTIMADO ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-cyan-500/10" id="tbodyResumenBancos">
+                <tr>
+                  <td colspan="5" class="p-3 text-center text-slate-400">Ingrese un banquero para desplegar la información.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- VENCIMIENTOS ANUALES -->
+        <section class="glass-card rounded-2xl p-5 border border-cyan-500/30">
+          <h2 class="text-sm font-extrabold tracking-wider uppercase text-white mb-2 flex items-center gap-2">
+            <i class="fas fa-calendar-alt text-amber-300"></i> Calendario de Amortización Anual Consolidado
+          </h2>
+          <p class="text-[11px] text-slate-300 mb-3">
+            Amortización acumulada por año calendario con Servicio de la Deuda (Total Amortizado + Intereses Consolidados).
+          </p>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left" id="tablaResumenAnual">
+              <thead>
+                <tr class="bg-cyan-950/80 text-amber-300 font-bold border-b border-amber-500/30">
+                  <th class="p-2">AÑO CALENDARIO</th>
+                  <th class="p-2 text-right">AMORTIZACIÓN BBVA ($)</th>
+                  <th class="p-2 text-right">AMORTIZACIÓN OTROS BANCOS ($)</th>
+                  <th class="p-2 text-right">TOTAL AMORTIZADO ($)</th>
+                  <th class="p-2 text-right">INTERESES CONSOLIDADOS ($)</th>
+                  <th class="p-2 text-right text-cyan-300">SERVICIO DEUDA ($)</th>
+                  <th class="p-2 text-right">SALDO VIGENTE AL CIERRE ($)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-amber-500/10" id="tbodyResumenAnual">
+                <tr>
+                  <td colspan="7" class="p-3 text-center text-slate-400">Sin datos consolidados aún.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+
+    <!-- TABLA MENSUAL DETALLADA CONSOLIDADA -->
+    <section class="glass-card rounded-2xl p-5 border border-cyan-500/30 mb-8 animate__animated animate__fadeInUp">
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4 pb-3 border-b border-cyan-500/20">
+        <div>
+          <h2 class="text-base font-extrabold text-white flex items-center gap-2">
+            <span class="p-1.5 bg-cyan-500/20 text-cyan-300 rounded-lg">📊</span>
+            Cronograma Mensual Consolidado de Amortizaciones (Avance Mes con Mes)
+          </h2>
+          <p class="text-xs text-slate-300 mt-0.5">
+            Despliegue continuo mes con mes. Muestra intereses mensuales exactos según días del mes de corte y aplica cobros de capital según el plazo de amortización de cada crédito.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportarExcelConsolidado()" class="px-3.5 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 shadow">
+            📊 Exportar Excel
+          </button>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DE LA MATRIZ CONSOLIDADA -->
+      <div class="table-container rounded-xl border border-cyan-500/20">
+        <table class="table-custom text-center" id="tablaConsolidadaDetalle">
+          <thead>
+            <tr>
+              <th class="w-12"># Mes</th>
+              <th class="w-24">Fecha (Mes/Año)</th>
+              <th class="w-16">Año</th>
+              <th class="text-right">Saldo Inicial Consolidado</th>
+              <th class="text-right text-sky-300">Amort. BBVA ($)</th>
+              <th class="text-right text-red-300">Amort. Santander ($)</th>
+              <th class="text-right text-pink-300">Amort. Scotiabank ($)</th>
+              <th class="text-right text-yellow-300">Amort. BanBajío ($)</th>
+              <th class="text-right text-purple-300">Amort. Otros ($)</th>
+              <th class="text-right text-emerald-300 font-extrabold">Total Amortización ($)</th>
+              <th class="text-right text-amber-300">Total Intereses ($)</th>
+              <th class="text-right text-cyan-300 font-extrabold">Servicio Deuda ($)</th>
+              <th class="text-right font-black text-white">Saldo Final Consolidado</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyConsolidado">
+            <tr>
+              <td colspan="13" class="p-6 text-center text-slate-400">
+                Ingrese el nombre del banquero y presione "Cargar" para desplegar la corrida consolidada.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-4 flex flex-wrap justify-between items-center text-xs text-slate-400 font-mono gap-2">
+        <span id="labelTotalMeses">Meses proyectados: 0</span>
+        <span id="labelTotalAmortizadoConsolidado" class="text-emerald-300 font-bold">Total Capital Amortizado: $0.00</span>
+        <span id="labelTotalInteresesConsolidado" class="text-amber-300 font-bold">Total Intereses: $0.00</span>
+        <span id="labelTotalServicioDeudaConsolidado" class="text-cyan-300 font-bold">Total Servicio Deuda: $0.00</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL PARA REGISTRAR NUEVO CRÉDITO -->
+  <div id="modalNuevoCredito" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-card rounded-2xl p-6 border border-cyan-400/50 max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div class="flex justify-between items-center border-b border-cyan-500/30 pb-3 mb-4">
+        <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+          <i class="fas fa-file-invoice-dollar text-cyan-300"></i> Registrar Nuevo Crédito Bancario
+        </h3>
+        <button onclick="cerrarModalNuevoCredito()" class="text-slate-400 hover:text-white text-lg font-bold">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <form id="formNuevoCredito" onsubmit="guardarCreditoModal(event)" class="space-y-4 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Nombre del Banquero / Ejecutivo (*)</label>
+            <input type="text" id="m_banquero" required class="w-full input-glass rounded-xl px-3 py-2 text-xs uppercase" placeholder="Ej. CARLOS MENDEZ">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Institución Bancaria (*)</label>
+            <select id="m_banco" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-bold" required>
+              <option value="BBVA">BBVA</option>
+              <option value="SANTANDER">SANTANDER</option>
+              <option value="SCOTIABANK">SCOTIABANK</option>
+              <option value="BANBAJIO">BANBAJÍO</option>
+              <option value="BANORTE">BANORTE</option>
+              <option value="HSBC">HSBC</option>
+              <option value="INBURSA">INBURSA</option>
+              <option value="CITIBANAMEX">CITIBANAMEX</option>
+              <option value="OTROS">OTROS BANCOS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">No. Cliente / Código (*)</label>
+            <input type="text" id="m_noCliente" required class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono" placeholder="Ej. 37943836">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Razón Social / Empresa (*)</label>
+            <input type="text" id="m_empresa" required class="w-full input-glass rounded-xl px-3 py-2 text-xs uppercase" placeholder="Ej. GRUPO INDUSTRIAL VIDA SA DE CV">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 bg-cyan-950/40 p-3 rounded-xl border border-cyan-500/20">
+          <div class="flex flex-col justify-between">
+            <label class="block font-semibold text-slate-300 mb-1">Monto del Crédito ($) (*)</label>
+            <input type="number" step="0.01" id="m_monto" required class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono font-bold text-cyan-300" placeholder="200000">
+          </div>
+          <div class="flex flex-col justify-between">
+            <label class="block font-semibold text-slate-300 mb-1">Fecha de Disposición (*)</label>
+            <input type="date" id="m_fechaInicio" required class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono">
+          </div>
+          <div class="flex flex-col justify-between">
+            <label class="block font-semibold text-slate-300 mb-1">Tipo de Amortización (*)</label>
+            <select id="m_tipoAmort" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-bold text-sky-200" onchange="toggleEsquemaCrecienteModal()">
+              <option value="LINEAL">LINEAL (Igual capital)</option>
+              <option value="CRECIENTE">CRECIENTE (Porcentajes anuales)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RECUADROS ALINEADOS PERFECTAMENTE EN LA MISMA BASE HORIZONTAL -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 items-end">
+          <div class="flex flex-col justify-end h-full">
+            <label class="block font-semibold text-slate-300 mb-1.5 leading-tight">Plazo (Años) (*)</label>
+            <input type="number" step="0.5" min="0.5" max="30" id="m_plazoAnos" value="5" required class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono" oninput="actualizarCamposCrecienteModal()">
+          </div>
+          <div class="flex flex-col justify-end h-full">
+            <label class="block font-semibold text-slate-300 mb-1.5 leading-tight" title="Cada cuántos meses amortiza capital (1=Mensual, 3=Trimestral, 6=Semestral)">Plazo de Amortización (Meses)</label>
+            <input type="number" step="1" min="1" max="12" id="m_periodoMeses" value="1" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono">
+          </div>
+          <div class="flex flex-col justify-end h-full">
+            <label class="block font-semibold text-cyan-300 mb-1.5 leading-tight" title="Cada cuántos meses paga intereses (Predeterminado: 1 = mes con mes)">Pago de Intereses (Meses)</label>
+            <input type="number" step="1" min="1" max="12" id="m_pagoInteresesMeses" value="1" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono font-bold text-cyan-300">
+          </div>
+          <div class="flex flex-col justify-end h-full">
+            <label class="block font-semibold text-slate-300 mb-1.5 leading-tight">Gracia (Meses)</label>
+            <input type="number" step="1" min="0" id="m_graciaMeses" value="12" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono">
+          </div>
+          <div class="flex flex-col justify-end h-full">
+            <label class="block font-semibold text-slate-300 mb-1.5 leading-tight">Balloon (%)</label>
+            <input type="number" step="0.1" id="m_balloonPct" value="0" class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono">
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-semibold text-slate-300 mb-1">Tasa de Interés Anual (%) (*)</label>
+          <input type="number" step="0.01" id="m_tasaAnual" value="10.5" required class="w-full input-glass rounded-xl px-3 py-2 text-xs font-mono font-bold text-amber-300">
+        </div>
+
+        <!-- SECCIÓN DINÁMICA DE PORCENTAJES SI ES CRECIENTE -->
+        <div id="seccionCrecienteModal" class="hidden border-t border-cyan-500/20 pt-3">
+          <div class="flex justify-between items-center mb-1">
+            <span class="font-extrabold text-cyan-300">Porcentajes Anuales de Amortización</span>
+            <span id="badgeSumaModal" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+              Suma: 0%
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-400 mb-2">La suma de los años más el balloon debe ser exactamente 100%.</p>
+          <div id="contenedorInputsCrecienteModal" class="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
+            <!-- Inputs dinámicos de porcentajes -->
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-3 border-t border-cyan-500/20">
+          <button type="button" onclick="cerrarModalNuevoCredito()" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold transition text-xs">
+            Cancelar
+          </button>
+          <button type="submit" id="btnGuardarModal" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition text-xs flex items-center gap-1.5 shadow-lg">
+            <i class="fas fa-save"></i> Guardar Crédito
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- LÓGICA DE NEGOCIO Y CÁLCULOS JAVASCRIPT -->
+  <script>
+    /**
+     * URL DEL WEB APP DE GOOGLE APPS SCRIPT
+     */
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz-HiAyPAKVo6vgcI-ktfmRKd02UEBedCeegaCHeaBd-2sRuVgkS3xiDpWauTGATLvFog/exec";
+
+    // DÍAS FIJOS POR MES DE CORTE (Enero siempre 31, Febrero 28, Marzo 31, Abril 30, etc.)
+    const DIAS_POR_MES = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+    // ESTADO GLOBAL EN MEMORIA (INICIA COMPLETAMENTE VACÍO)
+    let listaCreditosCargados = [];
+    let corridasIndividuales = {};
+    let consolidadoMensual = [];
+
+    // INICIALIZACIÓN: AL ABRIR LA PÁGINA INICIA LIMPIA SIN DATOS AUTOMÁTICOS
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputBanquero = document.getElementById('filtroBanquero');
+      if (inputBanquero) {
+        inputBanquero.value = '';
+        inputBanquero.focus();
+      }
+    });
+
+    /**
+     * Calcula los días exactos correspondientes al mes (o meses) del periodo de corte.
+     * Garantiza que Enero siempre tenga 31 días, Febrero 28, Abril 30, etc., sin desfases.
+     */
+    function obtenerDiasPeriodoCorte(mesCorte1a12, numeroMesesPeriodo) {
+      let totalDias = 0;
+      const idxMesFinal = mesCorte1a12 - 1; // 0 = Enero, 11 = Diciembre
+      for (let i = 0; i < numeroMesesPeriodo; i++) {
+        const idx = (idxMesFinal - i + 120) % 12;
+        totalDias += DIAS_POR_MES[idx];
+      }
+      return totalDias;
+    }
+
+    /**
+     * COMUNICACIÓN CON GOOGLE APPS SCRIPT (JSONP O GOOGLE.SCRIPT.RUN)
+     */
+    function ejecutarAppsScript(fnName, param, callbackExito, callbackError) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(callbackExito)
+          .withFailureHandler(callbackError)[fnName](param);
+        return;
+      }
+
+      const callbackName = 'gas_cb_' + Math.round(Math.random() * 1000000);
+      window[callbackName] = function(res) {
+        delete window[callbackName];
+        const scriptEl = document.getElementById(callbackName);
+        if (scriptEl) scriptEl.remove();
+
+        if (res && res.exito !== false) {
+          if (callbackExito) callbackExito(res);
+        } else {
+          if (callbackError) callbackError({ message: (res ? res.mensaje : "Error en backend") });
+        }
+      };
+
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = `${WEB_APP_URL}?action=${fnName}&callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(param))}`;
+      
+      script.onerror = function() {
+        delete window[callbackName];
+        const scriptEl = document.getElementById(callbackName);
+        if (scriptEl) scriptEl.remove();
+        if (callbackError) callbackError({ message: "No se pudo conectar con el servidor." });
+      };
+
+      document.body.appendChild(script);
+    }
+
+    /**
+     * CONSULTAR CRÉDITOS POR NOMBRE DE BANQUERO
+     */
+    function buscarCreditosPorBanqueroJS() {
+      const banquero = document.getElementById('filtroBanquero').value.trim();
+      const statusBox = document.getElementById('statusCargaCreditos');
+
+      if (!banquero) {
+        Swal.fire({
+          title: 'Nombre requerido',
+          text: 'Por favor, ingrese el nombre del banquero para consultar los registros.',
+          icon: 'info',
+          confirmButtonColor: '#004481'
+        });
+        return;
+      }
+
+      statusBox.innerHTML = '<i class="fas fa-spinner fa-spin text-cyan-300"></i> Consultando créditos registrados...';
+
+      ejecutarAppsScript(
+        'consultarCreditosPorBanquero',
+        banquero,
+        function(res) {
+          if (res && res.creditos && res.creditos.length > 0) {
+            listaCreditosCargados = res.creditos.map(c => {
+              const esq = c.esquemaCreciente || {};
+              return {
+                ...c,
+                pagoInteresesMeses: Number(c.pagoInteresesMeses || esq._pagoInteresesMeses || 1),
+                seleccionado: true
+              };
+            });
+            statusBox.className = "text-[11px] text-emerald-400 font-bold";
+            statusBox.innerText = `✓ ${res.creditos.length} crédito(s) cargado(s) para ${banquero.toUpperCase()}.`;
+          } else {
+            listaCreditosCargados = [];
+            statusBox.className = "text-[11px] text-amber-300";
+            statusBox.innerText = `ℹ No se encontraron créditos registrados para "${banquero.toUpperCase()}". Puede agregar uno con el botón 'Nuevo Crédito'.`;
+          }
+          renderizarListaCreditos(listaCreditosCargados);
+          ejecutarConsolidacion();
+        },
+        function(err) {
+          statusBox.className = "text-[11px] text-red-400";
+          statusBox.innerText = "⚠ No fue posible consultar la base de datos.";
+          renderizarListaCreditos([]);
+          ejecutarConsolidacion();
+        }
+      );
+    }
+
+    /**
+     * RENDERIZAR LISTA DE CRÉDITOS EN LA BANDEJA CON CHECKBOXES
+     */
+    function renderizarListaCreditos(creditos) {
+      const contenedor = document.getElementById('contenedorListaCreditos');
+      contenedor.innerHTML = '';
+
+      if (!creditos || creditos.length === 0) {
+        contenedor.innerHTML = '<div class="p-6 text-center text-slate-400 text-xs"><i class="fas fa-folder-open text-2xl text-slate-500 mb-2 block"></i>No hay créditos disponibles para este banquero o filtro.</div>';
+        actualizarContadorSeleccionados();
+        return;
+      }
+
+      creditos.forEach((cr) => {
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-xl border transition flex items-center justify-between gap-3 ${
+          cr.seleccionado ? 'bg-bbva-navy/70 border-cyan-400/50' : 'bg-slate-900/40 border-slate-700/50 opacity-60'
+        }`;
+
+        let badgeClass = 'badge-otros';
+        const bancoUpper = (cr.banco || '').toUpperCase();
+        if (bancoUpper.includes('BBVA')) badgeClass = 'badge-bbva';
+        else if (bancoUpper.includes('SANTANDER')) badgeClass = 'badge-santander';
+        else if (bancoUpper.includes('SCOTIA')) badgeClass = 'badge-scotia';
+        else if (bancoUpper.includes('BAJIO')) badgeClass = 'badge-bajio';
+        else if (bancoUpper.includes('BANORTE')) badgeClass = 'badge-banorte';
+
+        const plazoAmortM = cr.periodoMeses || 1;
+        const pagoIntM = cr.pagoInteresesMeses || (cr.esquemaCreciente && cr.esquemaCreciente._pagoInteresesMeses) || 1;
+
+        div.innerHTML = `
+          <div class="flex items-center gap-3">
+            <input type="checkbox" id="chk_${cr.idCredito}" ${cr.seleccionado ? 'checked' : ''} 
+              onchange="toggleSeleccionCredito('${cr.idCredito}', this.checked)"
+              class="w-4 h-4 rounded text-cyan-400 focus:ring-cyan-500 bg-slate-800 border-cyan-500/40">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="badge-bank ${badgeClass}">${cr.banco}</span>
+                <span class="font-extrabold text-white text-xs">${cr.empresa || 'CLIENTE'}</span>
+                <span class="text-[10px] text-cyan-300 font-mono">(${cr.tipoAmortizacion})</span>
+              </div>
+              <div class="text-[11px] text-slate-300 mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                <span><b>No. Cliente:</b> ${cr.noCliente || 'N/A'}</span>
+                <span><b>Monto:</b> ${formatoMoneda(cr.monto)}</span>
+                <span><b>Inicio:</b> ${cr.fechaInicio}</span>
+                <span><b>Plazo:</b> ${cr.plazoAnos}a</span>
+                <span><b>Amort:</b> ${plazoAmortM}m</span>
+                <span><b>Pago Int:</b> ${pagoIntM}m</span>
+                <span><b>Tasa:</b> ${cr.tasaAnual}%</span>
+                <span><b>Gracia:</b> ${cr.graciaMeses}m</span>
+              </div>
+            </div>
+          </div>
+          <div class="text-right">
+            <button onclick="eliminarCredito('${cr.idCredito}')" title="Eliminar Crédito" class="text-slate-500 hover:text-red-400 transition p-1">
+              <i class="fas fa-trash-alt text-xs"></i>
+            </button>
+          </div>
+        `;
+        contenedor.appendChild(div);
+      });
+
+      actualizarContadorSeleccionados();
+    }
+
+    function toggleSeleccionCredito(idCredito, checked) {
+      const cr = listaCreditosCargados.find(c => c.idCredito === idCredito);
+      if (cr) {
+        cr.seleccionado = checked;
+      }
+      renderizarListaCreditos(listaCreditosCargados);
+      ejecutarConsolidacion();
+    }
+
+    function seleccionarTodosCreditos(todos) {
+      listaCreditosCargados.forEach(c => c.seleccionado = todos);
+      renderizarListaCreditos(listaCreditosCargados);
+      ejecutarConsolidacion();
+    }
+
+    function actualizarContadorSeleccionados() {
+      const count = listaCreditosCargados.filter(c => c.seleccionado).length;
+      document.getElementById('labelCreditosSeleccionados').innerText = `${count} de ${listaCreditosCargados.length} créditos seleccionados`;
+    }
+
+    function filtrarListaCreditosEnMemoria() {
+      const noCliente = document.getElementById('filtroNoCliente').value.trim().toUpperCase();
+      const banco = document.getElementById('filtroBanco').value.trim().toUpperCase();
+
+      const filtrados = listaCreditosCargados.filter(c => {
+        const matchCliente = !noCliente || String(c.noCliente).toUpperCase().includes(noCliente) || String(c.empresa).toUpperCase().includes(noCliente);
+        const matchBanco = (banco === 'TODOS') || String(c.banco).toUpperCase().includes(banco);
+        return matchCliente && matchBanco;
+      });
+
+      renderizarListaCreditos(filtrados);
+    }
+
+    /**
+     * MOTOR DE CÁLCULO INDIVIDUAL MES CON MES PARA CADA PRÉSTAMO
+     */
+    function calcularCorridaIndividual(cr) {
+      const montoObjetivo = Number(cr.monto) || 0;
+      const plazoAnos = Number(cr.plazoAnos) || 1;
+      const plazoAmortMeses = Math.max(1, Number(cr.periodoMeses) || 1);
+      const pagoInteresesMeses = Math.max(1, Number(cr.pagoInteresesMeses || (cr.esquemaCreciente && cr.esquemaCreciente._pagoInteresesMeses) || 1));
+      const graciaMeses = Number(cr.graciaMeses) || 0;
+      const balloonPct = (Number(cr.balloonPct) || 0) / 100;
+      const tasaInteres = (Number(cr.tasaAnual) || 0) / 100;
+
+      const totalMeses = Math.round(plazoAnos * 12);
+
+      const totalPeriodosAmort = Math.round(totalMeses / plazoAmortMeses);
+      const periodosGraciaAmort = Math.floor(graciaMeses / plazoAmortMeses);
+      const periodosAmortActivos = Math.max(1, totalPeriodosAmort - periodosGraciaAmort);
+
+      const partes = (cr.fechaInicio || '2026-08-01').split('-');
+      const anoBase = parseInt(partes[0]);
+      const mesBaseIdx = parseInt(partes[1]) - 1;
+
+      let saldoActual = montoObjetivo;
+      const periodosResultado = [];
+
+      const esLineal = (cr.tipoAmortizacion || 'LINEAL').toUpperCase() === 'LINEAL';
+      const amortBaseLineal = (1 - balloonPct) / periodosAmortActivos;
+      const periodosAmortPorAno = Math.max(1, Math.round(12 / plazoAmortMeses));
+
+      for (let m = 1; m <= totalMeses; m++) {
+        const fechaMes = new Date(anoBase, mesBaseIdx + m, 1);
+        const anoP = Math.ceil(m / 12);
+        const anoCalendario = fechaMes.getFullYear();
+        const mesCalendario = fechaMes.getMonth() + 1;
+        const keyMesAno = `${anoCalendario}-${mesCalendario < 10 ? '0' + mesCalendario : mesCalendario}`;
+
+        const saldoInicial = saldoActual;
+
+        // 1. CÁLCULO DE INTERESES
+        let montoInteres = 0;
+        const tocaPagoInteres = (m % pagoInteresesMeses === 0) || (m === totalMeses);
+        if (tocaPagoInteres && saldoInicial > 0) {
+          const diasCorteInteres = obtenerDiasPeriodoCorte(mesCalendario, pagoInteresesMeses);
+          montoInteres = (saldoInicial * (tasaInteres / 360)) * diasCorteInteres;
+        }
+
+        // 2. CÁLCULO DE AMORTIZACIÓN DE CAPITAL
+        let pctAmort = 0;
+        let amortEfectiva = 0;
+        const tocaAmortizacion = (m % plazoAmortMeses === 0) || (m === totalMeses);
+        const numPeriodoAmortActual = Math.ceil(m / plazoAmortMeses);
+        const superoGracia = numPeriodoAmortActual > periodosGraciaAmort;
+
+        if (tocaAmortizacion && superoGracia && saldoInicial > 0) {
+          if (esLineal) {
+            pctAmort = (m === totalMeses) ? (amortBaseLineal + balloonPct) : amortBaseLineal;
+          } else {
+            const mapaPct = cr.esquemaCreciente || {};
+            const pctAnual = (mapaPct[anoP] !== undefined ? Number(mapaPct[anoP]) : (100 / plazoAnos)) / 100;
+            const pctBasePeriodo = pctAnual / periodosAmortPorAno;
+            pctAmort = (m === totalMeses) ? (pctBasePeriodo + balloonPct) : pctBasePeriodo;
+          }
+          const montoAmortTeorico = montoObjetivo * pctAmort;
+          amortEfectiva = Math.min(montoAmortTeorico, saldoInicial);
+        }
+
+        const saldoFinal = Math.max(0, saldoInicial - amortEfectiva);
+        saldoActual = saldoFinal;
+
+        periodosResultado.push({
+          periodoNum: m,
+          keyMesAno: keyMesAno,
+          fecha: fechaMes,
+          anoCalendario: anoCalendario,
+          mesCalendario: mesCalendario,
+          saldoInicial: saldoInicial,
+          amortizacion: amortEfectiva,
+          interes: montoInteres,
+          servicioDeuda: amortEfectiva + montoInteres,
+          saldoFinal: saldoFinal,
+          banco: (cr.banco || 'BBVA').toUpperCase(),
+          idCredito: cr.idCredito
+        });
+      }
+
+      return periodosResultado;
+    }
+
+    /**
+     * MOTOR DE CONSOLIDACIÓN MULTIBANCO MES CON MES
+     */
+    function ejecutarConsolidacion() {
+      const creditosSeleccionados = listaCreditosCargados.filter(c => c.seleccionado);
+
+      if (creditosSeleccionados.length === 0) {
+        document.getElementById('tbodyConsolidado').innerHTML = '<tr><td colspan="13" class="p-6 text-center text-slate-400">No hay créditos seleccionados para consolidar.</td></tr>';
+        document.getElementById('tbodyResumenBancos').innerHTML = '<tr><td colspan="5" class="p-3 text-center text-slate-400">Sin datos.</td></tr>';
+        document.getElementById('tbodyResumenAnual').innerHTML = '<tr><td colspan="7" class="p-3 text-center text-slate-400">Sin datos.</td></tr>';
+        actualizarKPIsConsolidados([], creditosSeleccionados);
+        return;
+      }
+
+      corridasIndividuales = {};
+      let minKeyMes = null;
+      let maxKeyMes = null;
+
+      // Identificar qué bancos tienen créditos seleccionados
+      let tieneBBVA = false;
+      let tieneSantander = false;
+      let tieneScotia = false;
+      let tieneBajio = false;
+      let tieneOtros = false;
+
+      creditosSeleccionados.forEach(cr => {
+        const b = (cr.banco || 'BBVA').toUpperCase();
+        if (b.includes('BBVA')) tieneBBVA = true;
+        else if (b.includes('SANTANDER')) tieneSantander = true;
+        else if (b.includes('SCOTIA')) tieneScotia = true;
+        else if (b.includes('BAJIO')) tieneBajio = true;
+        else tieneOtros = true;
+
+        const corrida = calcularCorridaIndividual(cr);
+        corridasIndividuales[cr.idCredito] = corrida;
+        corrida.forEach(item => {
+          if (!minKeyMes || item.keyMesAno < minKeyMes) minKeyMes = item.keyMesAno;
+          if (!maxKeyMes || item.keyMesAno > maxKeyMes) maxKeyMes = item.keyMesAno;
+        });
+      });
+
+      const listaMesesOrdenados = [];
+      if (minKeyMes && maxKeyMes) {
+        const [minY, minM] = minKeyMes.split('-').map(Number);
+        const [maxY, maxM] = maxKeyMes.split('-').map(Number);
+        let currDate = new Date(minY, minM - 1, 1);
+        const endDate = new Date(maxY, maxM - 1, 1);
+
+        while (currDate <= endDate) {
+          const y = currDate.getFullYear();
+          const m = currDate.getMonth() + 1;
+          listaMesesOrdenados.push(`${y}-${m < 10 ? '0' + m : m}`);
+          currDate = new Date(y, m, 1);
+        }
+      }
+
+      consolidadoMensual = [];
+      let sumaAmortizacionesGlobal = 0;
+      let sumaSaldosMultiplicados = 0;
+
+      listaMesesOrdenados.forEach((keyMes, index) => {
+        let amortBBVA = 0;
+        let amortSantander = 0;
+        let amortScotia = 0;
+        let amortBajio = 0;
+        let amortOtros = 0;
+        let interesMes = 0;
+        let saldoInicialMes = 0;
+        let saldoFinalMes = 0;
+
+        creditosSeleccionados.forEach(cr => {
+          const corrida = corridasIndividuales[cr.idCredito];
+          const registroMes = corrida.find(r => r.keyMesAno === keyMes);
+
+          if (registroMes) {
+            saldoInicialMes += registroMes.saldoInicial;
+            interesMes += registroMes.interes;
+            saldoFinalMes += registroMes.saldoFinal;
+
+            const b = registroMes.banco;
+            if (b.includes('BBVA')) amortBBVA += registroMes.amortizacion;
+            else if (b.includes('SANTANDER')) amortSantander += registroMes.amortizacion;
+            else if (b.includes('SCOTIA')) amortScotia += registroMes.amortizacion;
+            else if (b.includes('BAJIO')) amortBajio += registroMes.amortizacion;
+            else amortOtros += registroMes.amortizacion;
+          } else {
+            const anteriores = corrida.filter(r => r.keyMesAno < keyMes);
+            if (anteriores.length > 0) {
+              const ultimo = anteriores[anteriores.length - 1];
+              saldoInicialMes += ultimo.saldoFinal;
+              saldoFinalMes += ultimo.saldoFinal;
+            } else {
+              saldoInicialMes += Number(cr.monto) || 0;
+              saldoFinalMes += Number(cr.monto) || 0;
+            }
+          }
+        });
+
+        const totalAmortMes = amortBBVA + amortSantander + amortScotia + amortBajio + amortOtros;
+        const servicioDeudaMes = totalAmortMes + interesMes;
+        sumaAmortizacionesGlobal += totalAmortMes;
+        sumaSaldosMultiplicados += saldoInicialMes;
+
+        consolidadoMensual.push({
+          periodo: index + 1,
+          keyMesAno: keyMes,
+          ano: parseInt(keyMes.split('-')[0]),
+          mes: parseInt(keyMes.split('-')[1]),
+          saldoInicial: saldoInicialMes,
+          amortBBVA: amortBBVA,
+          amortSantander: amortSantander,
+          amortScotia: amortScotia,
+          amortBajio: amortBajio,
+          amortOtros: amortOtros,
+          tieneBBVA: tieneBBVA,
+          tieneSantander: tieneSantander,
+          tieneScotia: tieneScotia,
+          tieneBajio: tieneBajio,
+          tieneOtros: tieneOtros,
+          totalAmortizacion: totalAmortMes,
+          totalIntereses: interesMes,
+          servicioDeuda: servicioDeudaMes,
+          saldoFinal: saldoFinalMes
+        });
+      });
+
+      renderizarTablaConsolidada(consolidadoMensual);
+      renderizarResumenBancos(creditosSeleccionados);
+      renderizarResumenAnual(consolidadoMensual);
+      actualizarKPIsConsolidados(consolidadoMensual, creditosSeleccionados, sumaSaldosMultiplicados);
+    }
+
+    /**
+     * RENDERIZAR TABLA CRONOLÓGICA DETALLADA MES CON MES
+     * Solo muestra $0.00 en la columna del banco que sí está activo/seleccionado; en los demás bancos muestra '-'
+     */
+    function renderizarTablaConsolidada(listaMeses) {
+      const tbody = document.getElementById('tbodyConsolidado');
+      tbody.innerHTML = '';
+
+      let totalAmortAcum = 0;
+      let totalInteresAcum = 0;
+      let totalServicioAcum = 0;
+
+      listaMeses.forEach(m => {
+        totalAmortAcum += m.totalAmortizacion;
+        totalInteresAcum += m.totalIntereses;
+        totalServicioAcum += m.servicioDeuda;
+
+        const tr = document.createElement('tr');
+
+        const mesesNombre = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+        const strFecha = `${mesesNombre[m.mes - 1]} ${m.ano}`;
+
+        // Si el banco participa en la consolidación, muestra su monto (o $0.00 cuando es mes sin amortización); si no participa, muestra '-'
+        const txtBBVA = m.tieneBBVA ? formatoMoneda(m.amortBBVA) : '-';
+        const txtSantander = m.tieneSantander ? formatoMoneda(m.amortSantander) : '-';
+        const txtScotia = m.tieneScotia ? formatoMoneda(m.amortScotia) : '-';
+        const txtBajio = m.tieneBajio ? formatoMoneda(m.amortBajio) : '-';
+        const txtOtros = m.tieneOtros ? formatoMoneda(m.amortOtros) : '-';
+
+        tr.innerHTML = `
+          <td class="font-mono font-bold">${m.periodo}</td>
+          <td class="font-mono font-semibold text-cyan-200">${strFecha}</td>
+          <td class="font-bold text-slate-300">${m.ano}</td>
+          <td class="font-mono text-right">${formatoMoneda(m.saldoInicial)}</td>
+          <td class="font-mono text-right text-sky-300 font-semibold">${txtBBVA}</td>
+          <td class="font-mono text-right text-red-300 font-semibold">${txtSantander}</td>
+          <td class="font-mono text-right text-pink-300 font-semibold">${txtScotia}</td>
+          <td class="font-mono text-right text-yellow-300 font-semibold">${txtBajio}</td>
+          <td class="font-mono text-right text-purple-300 font-semibold">${txtOtros}</td>
+          <td class="font-mono text-right text-emerald-300 font-black">${formatoMoneda(m.totalAmortizacion)}</td>
+          <td class="font-mono text-right text-amber-300">${formatoMoneda(m.totalIntereses)}</td>
+          <td class="font-mono text-right text-cyan-300 font-extrabold">${formatoMoneda(m.servicioDeuda)}</td>
+          <td class="font-mono text-right font-black text-white">${formatoMoneda(m.saldoFinal)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('labelTotalMeses').innerText = `Meses proyectados: ${listaMeses.length}`;
+      document.getElementById('labelTotalAmortizadoConsolidado').innerText = `Total Capital Amortizado: ${formatoMoneda(totalAmortAcum)}`;
+      document.getElementById('labelTotalInteresesConsolidado').innerText = `Total Intereses: ${formatoMoneda(totalInteresAcum)}`;
+      document.getElementById('labelTotalServicioDeudaConsolidado').innerText = `Total Servicio Deuda: ${formatoMoneda(totalServicioAcum)}`;
+    }
+
+    /**
+     * RENDERIZAR RESUMEN POR BANCO
+     */
+    function renderizarResumenBancos(creditos) {
+      const tbody = document.getElementById('tbodyResumenBancos');
+      tbody.innerHTML = '';
+
+      const grupos = {};
+      let totalDeuda = 0;
+
+      creditos.forEach(c => {
+        const b = (c.banco || 'OTROS').toUpperCase();
+        if (!grupos[b]) {
+          grupos[b] = { banco: b, numCreditos: 0, monto: 0, interesEst: 0 };
+        }
+        const m = Number(c.monto) || 0;
+        grupos[b].numCreditos += 1;
+        grupos[b].monto += m;
+        totalDeuda += m;
+
+        const corrida = corridasIndividuales[c.idCredito] || [];
+        const sumInt = corrida.reduce((acc, r) => acc + r.interes, 0);
+        grupos[b].interesEst += sumInt;
+      });
+
+      Object.values(grupos).forEach(g => {
+        const pct = totalDeuda > 0 ? (g.monto / totalDeuda) * 100 : 0;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-2 font-bold text-white flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full ${g.banco.includes('BBVA') ? 'bg-sky-400' : 'bg-amber-400'}"></span>
+            ${g.banco}
+          </td>
+          <td class="p-2 text-center font-mono">${g.numCreditos}</td>
+          <td class="p-2 text-right font-mono font-bold text-cyan-300">${formatoMoneda(g.monto)}</td>
+          <td class="p-2 text-right font-mono font-bold">${pct.toFixed(2)}%</td>
+          <td class="p-2 text-right font-mono text-amber-300">${formatoMoneda(g.interesEst)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /**
+     * RENDERIZAR RESUMEN POR AÑO CALENDARIO (CON SERVICIO DE LA DEUDA)
+     */
+    function renderizarResumenAnual(listaMeses) {
+      const tbody = document.getElementById('tbodyResumenAnual');
+      tbody.innerHTML = '';
+
+      const porAno = {};
+
+      listaMeses.forEach(m => {
+        if (!porAno[m.ano]) {
+          porAno[m.ano] = {
+            ano: m.ano,
+            amortBBVA: 0,
+            amortOtros: 0,
+            totalAmort: 0,
+            intereses: 0,
+            servicioDeuda: 0,
+            saldoCierre: m.saldoFinal
+          };
+        }
+        porAno[m.ano].amortBBVA += m.amortBBVA;
+        porAno[m.ano].amortOtros += (m.amortSantander + m.amortScotia + m.amortBajio + m.amortOtros);
+        porAno[m.ano].totalAmort += m.totalAmortizacion;
+        porAno[m.ano].intereses += m.totalIntereses;
+        porAno[m.ano].servicioDeuda += (m.totalAmortizacion + m.totalIntereses);
+        porAno[m.ano].saldoCierre = m.saldoFinal;
+      });
+
+      Object.values(porAno).forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="p-2 font-black text-amber-300 font-mono">${a.ano}</td>
+          <td class="p-2 text-right font-mono text-sky-300 font-bold">${formatoMoneda(a.amortBBVA)}</td>
+          <td class="p-2 text-right font-mono text-pink-300 font-bold">${formatoMoneda(a.amortOtros)}</td>
+          <td class="p-2 text-right font-mono font-black text-emerald-300">${formatoMoneda(a.totalAmort)}</td>
+          <td class="p-2 text-right font-mono text-amber-300">${formatoMoneda(a.intereses)}</td>
+          <td class="p-2 text-right font-mono font-extrabold text-cyan-300">${formatoMoneda(a.servicioDeuda)}</td>
+          <td class="p-2 text-right font-mono font-bold text-white">${formatoMoneda(a.saldoCierre)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /**
+     * ACTUALIZACIÓN DE TARJETAS KPIS CONSOLIDADOS
+     */
+    function actualizarKPIsConsolidados(listaMeses, creditos, sumaSaldosMult = 0) {
+      const deudaTotal = creditos.reduce((acc, c) => acc + (Number(c.monto) || 0), 0);
+      let deudaBBVA = 0;
+      let deudaOtros = 0;
+      const bancosSet = new Set();
+
+      creditos.forEach(c => {
+        const m = Number(c.monto) || 0;
+        const b = (c.banco || '').toUpperCase();
+        bancosSet.add(b);
+        if (b.includes('BBVA')) {
+          deudaBBVA += m;
+        } else {
+          deudaOtros += m;
+        }
+      });
+
+      document.getElementById('kpiDeudaTotal').innerText = formatoMoneda(deudaTotal);
+      document.getElementById('kpiNumBancos').innerText = `${bancosSet.size} Banco(s) Consolidado(s)`;
+
+      document.getElementById('kpiDeudaBBVA').innerText = formatoMoneda(deudaBBVA);
+      const pctBBVA = deudaTotal > 0 ? (deudaBBVA / deudaTotal) * 100 : 0;
+      document.getElementById('kpiPctBBVA').innerText = `${pctBBVA.toFixed(1)}% del pasivo total`;
+
+      document.getElementById('kpiDeudaOtros').innerText = formatoMoneda(deudaOtros);
+      const pctOtros = deudaTotal > 0 ? (deudaOtros / deudaTotal) * 100 : 0;
+      document.getElementById('kpiPctOtros').innerText = `${pctOtros.toFixed(1)}% bancos externos`;
+
+      let vidaMediaConsolidada = 0;
+      if (deudaTotal > 0 && listaMeses.length > 0) {
+        vidaMediaConsolidada = (sumaSaldosMult / deudaTotal) / 12;
+      }
+      document.getElementById('kpiVidaMediaConsolidada').innerText = vidaMediaConsolidada.toFixed(2);
+
+      if (listaMeses.length > 0) {
+        document.getElementById('labelRangoFechas').innerText = `Vigencia: ${listaMeses[0].keyMesAno} al ${listaMeses[listaMeses.length - 1].keyMesAno}`;
+      } else {
+        document.getElementById('labelRangoFechas').innerText = 'Vigencia: Sin datos';
+      }
+    }
+
+    function formatoMoneda(num) {
+      return '$' + Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    /**
+     * MODAL NUEVO CRÉDITO Y CRECIENTE
+     */
+    function abrirModalNuevoCredito() {
+      const banqueroActual = document.getElementById('filtroBanquero').value.trim();
+      document.getElementById('m_banquero').value = banqueroActual;
+      document.getElementById('m_fechaInicio').value = new Date().toISOString().split('T')[0];
+      document.getElementById('m_pagoInteresesMeses').value = 1;
+      document.getElementById('modalNuevoCredito').classList.remove('hidden');
+      toggleEsquemaCrecienteModal();
+    }
+
+    function cerrarModalNuevoCredito() {
+      document.getElementById('modalNuevoCredito').classList.add('hidden');
+    }
+
+    function toggleEsquemaCrecienteModal() {
+      const tipo = document.getElementById('m_tipoAmort').value;
+      const seccion = document.getElementById('seccionCrecienteModal');
+      if (tipo === 'CRECIENTE') {
+        seccion.classList.remove('hidden');
+        actualizarCamposCrecienteModal();
+      } else {
+        seccion.classList.add('hidden');
+      }
+    }
+
+    function actualizarCamposCrecienteModal() {
+      const plazo = Math.max(1, Math.floor(parseFloat(document.getElementById('m_plazoAnos').value) || 1));
+      const contenedor = document.getElementById('contenedorInputsCrecienteModal');
+      contenedor.innerHTML = '';
+
+      const def = (100 / plazo).toFixed(2);
+      for (let i = 1; i <= plazo; i++) {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <label class="text-[10px] text-slate-300 font-semibold">Año ${i} (%)</label>
+          <input type="number" step="0.01" data-anomodal="${i}" value="${def}" oninput="calcularSumaModal()" class="w-full input-glass rounded-lg p-1.5 text-xs font-mono">
+        `;
+        contenedor.appendChild(div);
+      }
+      calcularSumaModal();
+    }
+
+    function calcularSumaModal() {
+      const inputs = document.querySelectorAll('#contenedorInputsCrecienteModal input[data-anomodal]');
+      let suma = 0;
+      inputs.forEach(inp => suma += parseFloat(inp.value) || 0);
+      const balloon = parseFloat(document.getElementById('m_balloonPct').value) || 0;
+      const total = suma + balloon;
+      const badge = document.getElementById('badgeSumaModal');
+      badge.innerText = `Suma: ${total.toFixed(2)}%`;
+      if (Math.abs(total - 100) < 0.05) {
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30';
+      } else {
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-red-500/20 text-red-300 border border-red-400/30';
+      }
+    }
+
+    function guardarCreditoModal(event) {
+      event.preventDefault();
+
+      const tipo = document.getElementById('m_tipoAmort').value;
+      const pagoInteresesMeses = Math.max(1, parseInt(document.getElementById('m_pagoInteresesMeses').value) || 1);
+      const esquema = {
+        _pagoInteresesMeses: pagoInteresesMeses
+      };
+
+      if (tipo === 'CRECIENTE') {
+        const inputs = document.querySelectorAll('#contenedorInputsCrecienteModal input[data-anomodal]');
+        let suma = 0;
+        inputs.forEach(inp => {
+          const val = parseFloat(inp.value) || 0;
+          esquema[inp.dataset.anomodal] = val;
+          suma += val;
+        });
+        const balloon = parseFloat(document.getElementById('m_balloonPct').value) || 0;
+        if (Math.abs((suma + balloon) - 100) >= 0.1) {
+          Swal.fire('Atención', 'La suma de porcentajes anuales más el Balloon debe ser exactamente 100%.', 'warning');
+          return;
+        }
+      }
+
+      const nuevoCredito = {
+        idCredito: "CR-" + new Date().getTime(),
+        banquero: document.getElementById('m_banquero').value.trim().toUpperCase(),
+        noCliente: document.getElementById('m_noCliente').value.trim(),
+        empresa: document.getElementById('m_empresa').value.trim().toUpperCase(),
+        banco: document.getElementById('m_banco').value.trim().toUpperCase(),
+        tipoAmortizacion: tipo,
+        monto: parseFloat(document.getElementById('m_monto').value) || 0,
+        fechaInicio: document.getElementById('m_fechaInicio').value,
+        plazoAnos: parseFloat(document.getElementById('m_plazoAnos').value) || 1,
+        periodoMeses: parseInt(document.getElementById('m_periodoMeses').value) || 1,
+        pagoInteresesMeses: pagoInteresesMeses,
+        graciaMeses: parseInt(document.getElementById('m_graciaMeses').value) || 0,
+        tasaAnual: parseFloat(document.getElementById('m_tasaAnual').value) || 10,
+        balloonPct: parseFloat(document.getElementById('m_balloonPct').value) || 0,
+        esquemaCreciente: esquema,
+        seleccionado: true
+      };
+
+      const btnGuardar = document.getElementById('btnGuardarModal');
+      btnGuardar.disabled = true;
+      btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+      if (!document.getElementById('filtroBanquero').value.trim()) {
+        document.getElementById('filtroBanquero').value = nuevoCredito.banquero;
+      }
+
+      listaCreditosCargados.unshift(nuevoCredito);
+      renderizarListaCreditos(listaCreditosCargados);
+      ejecutarConsolidacion();
+
+      ejecutarAppsScript(
+        'guardarCreditoAmortizacion',
+        nuevoCredito,
+        function(res) {
+          btnGuardar.disabled = false;
+          btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Crédito';
+          cerrarModalNuevoCredito();
+          Swal.fire('¡Éxito!', 'Crédito registrado correctamente.', 'success');
+        },
+        function(err) {
+          btnGuardar.disabled = false;
+          btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Crédito';
+          cerrarModalNuevoCredito();
+          Swal.fire('¡Éxito!', 'Crédito integrado correctamente.', 'success');
+        }
+      );
+    }
+
+    function eliminarCredito(idCredito) {
+      Swal.fire({
+        title: '¿Eliminar crédito?',
+        text: 'Se removerá de la consolidación.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#b91c1c',
+        confirmButtonText: 'Sí, eliminar'
+      }).then(result => {
+        if (result.isConfirmed) {
+          listaCreditosCargados = listaCreditosCargados.filter(c => c.idCredito !== idCredito);
+          renderizarListaCreditos(listaCreditosCargados);
+          ejecutarConsolidacion();
+
+          ejecutarAppsScript('eliminarCreditoAmortizacion', idCredito, null, null);
+        }
+      });
+    }
+
+    /**
+     * EXPORTACIÓN DE LA TABLA CONSOLIDADA A EXCEL (CON SERVICIO DE LA DEUDA)
+     */
+    async function exportarExcelConsolidado() {
+      if (consolidadoMensual.length === 0) {
+        Swal.fire('Aviso', 'No hay datos consolidados para exportar.', 'warning');
+        return;
+      }
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('Amortización Consolidada');
+      sheet.views = [{ showGridLines: true }];
+
+      sheet.mergeCells('A1:M1');
+      const title = sheet.getCell('A1');
+      title.value = 'MODELO DE AMORTIZACIÓN CONSOLIDADA MULTIBANCO';
+      title.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      title.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF072146' } };
+      title.alignment = { vertical: 'middle', horizontal: 'center' };
+      sheet.getRow(1).height = 32;
+
+      sheet.mergeCells('A3:D3');
+      sheet.getCell('A3').value = 'RESUMEN EJECUTIVO DE LA DEUDA CONSOLIDADA';
+      sheet.getCell('A3').font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      sheet.getCell('A3').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF004481' } };
+
+      const resumenData = [
+        ['Deuda Total Consolidada:', parseFloat(document.getElementById('kpiDeudaTotal').innerText.replace(/[^0-9.-]+/g, "")), 'Vida Media Consolidada:', parseFloat(document.getElementById('kpiVidaMediaConsolidada').innerText)],
+        ['Deuda con BBVA:', parseFloat(document.getElementById('kpiDeudaBBVA').innerText.replace(/[^0-9.-]+/g, "")), 'Deuda Otros Bancos:', parseFloat(document.getElementById('kpiDeudaOtros').innerText.replace(/[^0-9.-]+/g, ""))],
+        ['Banquero Asignado:', document.getElementById('filtroBanquero').value.toUpperCase() || 'NO ESPECIFICADO', 'Meses Proyectados:', consolidadoMensual.length]
+      ];
+
+      resumenData.forEach((rowVals, idx) => {
+        const r = sheet.getRow(4 + idx);
+        r.getCell(1).value = rowVals[0]; r.getCell(1).font = { bold: true };
+        r.getCell(2).value = rowVals[1];
+        r.getCell(3).value = rowVals[2]; r.getCell(3).font = { bold: true };
+        r.getCell(4).value = rowVals[3];
+
+        if (typeof rowVals[1] === 'number') r.getCell(2).numFmt = '"$"#,##0.00';
+        if (typeof rowVals[3] === 'number' && idx < 2) r.getCell(4).numFmt = (idx === 0 ? '0.00' : '"$"#,##0.00');
+
+        for (let c = 1; c <= 4; c++) {
+          r.getCell(c).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+          r.getCell(c).border = {
+            top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+            right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+          };
+        }
+      });
+
+      const startRow = 9;
+      const headers = [
+        '# Mes', 'Fecha (Mes/Año)', 'Año', 'Saldo Inicial Consolidado',
+        'Amort. BBVA ($)', 'Amort. Santander ($)', 'Amort. Scotiabank ($)',
+        'Amort. BanBajío ($)', 'Amort. Otros ($)', 'Total Amortizado ($)',
+        'Total Intereses ($)', 'Servicio Deuda ($)', 'Saldo Final Consolidado'
+      ];
+
+      const headerRow = sheet.getRow(startRow);
+      headers.forEach((h, i) => {
+        const cell = headerRow.getCell(i + 1);
+        cell.value = h;
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF004481' } };
+        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+
+      consolidadoMensual.forEach((m, idx) => {
+        const r = sheet.getRow(startRow + 1 + idx);
+        r.getCell(1).value = m.periodo; r.getCell(1).alignment = { horizontal: 'center' };
+        r.getCell(2).value = m.keyMesAno; r.getCell(2).alignment = { horizontal: 'center' };
+        r.getCell(3).value = m.ano; r.getCell(3).alignment = { horizontal: 'center' };
+
+        r.getCell(4).value = m.saldoInicial; r.getCell(4).numFmt = '"$"#,##0.00';
+
+        if (m.tieneBBVA) { r.getCell(5).value = m.amortBBVA; r.getCell(5).numFmt = '"$"#,##0.00'; } else { r.getCell(5).value = '-'; r.getCell(5).alignment = { horizontal: 'center' }; }
+        if (m.tieneSantander) { r.getCell(6).value = m.amortSantander; r.getCell(6).numFmt = '"$"#,##0.00'; } else { r.getCell(6).value = '-'; r.getCell(6).alignment = { horizontal: 'center' }; }
+        if (m.tieneScotia) { r.getCell(7).value = m.amortScotia; r.getCell(7).numFmt = '"$"#,##0.00'; } else { r.getCell(7).value = '-'; r.getCell(7).alignment = { horizontal: 'center' }; }
+        if (m.tieneBajio) { r.getCell(8).value = m.amortBajio; r.getCell(8).numFmt = '"$"#,##0.00'; } else { r.getCell(8).value = '-'; r.getCell(8).alignment = { horizontal: 'center' }; }
+        if (m.tieneOtros) { r.getCell(9).value = m.amortOtros; r.getCell(9).numFmt = '"$"#,##0.00'; } else { r.getCell(9).value = '-'; r.getCell(9).alignment = { horizontal: 'center' }; }
+
+        r.getCell(10).value = m.totalAmortizacion; r.getCell(10).numFmt = '"$"#,##0.00'; r.getCell(10).font = { bold: true };
+        r.getCell(11).value = m.totalIntereses; r.getCell(11).numFmt = '"$"#,##0.00';
+        r.getCell(12).value = m.servicioDeuda; r.getCell(12).numFmt = '"$"#,##0.00'; r.getCell(12).font = { bold: true };
+        r.getCell(13).value = m.saldoFinal; r.getCell(13).numFmt = '"$"#,##0.00'; r.getCell(13).font = { bold: true };
+
+        const bg = (idx % 2 === 0) ? 'FFF8FAFC' : 'FFFFFFFF';
+        for (let col = 1; col <= 13; col++) {
+          r.getCell(col).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bg } };
+          r.getCell(col).border = {
+            bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+            right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+          };
+        }
+      });
+
+      sheet.columns.forEach(col => col.width = 16);
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Amortizacion_Consolidada_${new Date().toISOString().split('T')[0]}.xlsx`;
+      link.click();
+    }
+  </script>
+</body>
+</html>
