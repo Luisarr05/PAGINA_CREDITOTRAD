@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crédito Tradicional y CrediFlex - Portal Corporativo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ==========================================================================
+       VARIABLES OFICIALES DEL MANUAL DE MARCA BBVA (.ct-master-wrap)
+       ========================================================================== */
+    .ct-master-wrap {
+      /* Colores Principales BBVA */
+      --bbva-sand: #F7F8F8;       /* A: RGB 247 248 248 */
+      --bbva-serene: #85C8FF;     /* B: RGB 133 200 255 */
+      --bbva-electric: #001391;   /* C: RGB 0 19 145 */
+      --bbva-midnight: #070E46;   /* D: RGB 6 14 70 */
+      --bbva-white: #FFFFFF;
+
+      /* Escala de Grises Oficial */
+      --bbva-gray-100: #E2E5E9;
+      --bbva-gray-200: #C8CDD4;
+      --bbva-gray-300: #B0B7C0;
+      --bbva-gray-600: #4A5262;
+
+      /* Colores de Acento Oficiales */
+      --bbva-accent-orange: #FFB56B;
+      --bbva-accent-yellow: #FFE761;
+      --bbva-accent-green: #88E783;
+      --bbva-accent-aqua: #8CE8EA;
+      --bbva-accent-purple: #A3A0FF;
+
+      /* Verde turquesa del diagrama NAFIN */
+      --ct-teal-box: #1E8E8D;
+
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--bbva-midnight);
+      background-color: var(--bbva-sand);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
+
+    .ct-master-wrap *, 
+    .ct-master-wrap *::before, 
+    .ct-master-wrap *::after {
+      box-sizing: border-box;
+    }
+
+    .ct-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .ct-divider {
+      border: 0;
+      border-top: 1px solid var(--bbva-gray-200);
+      margin: 32px auto;
+      max-width: 1140px;
+    }
+
+    .ct-divider-dashed {
+      border: 0;
+      border-top: 1px dashed var(--bbva-gray-300);
+      margin: 36px auto;
+    }
+
+    /* ==========================================================================
+       REGLAS DE TIPOGRAFÍA E INTERLINEADO BBVA (GEORGIA + ARIAL)
+       ========================================================================== */
+    .ct-serif {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--bbva-electric);
+    }
+
+    .ct-serif-large {
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-weight: 700;
+      line-height: 0.96;
+    }
+
+    .ct-lead-paragraph {
+      line-height: 1.20;
+      font-size: 1.08rem;
+      color: var(--bbva-electric);
+    }
+
+    /* ==========================================================================
+       1. BOTONES PÍLDORA (REGLA DE USO BBVA) CON EFECTO SHINE / GLOW
+       ========================================================================== */
+    .ct-btn {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 22px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-align: center;
+      text-decoration: none;
+      border-radius: 50px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, background-color 0.28s ease;
+      z-index: 1;
+    }
+
+    .ct-btn-royal {
+      background-color: var(--bbva-electric);
+      color: var(--bbva-sand);
+      border: 1px solid var(--bbva-electric);
+      box-shadow: 0 5px 14px rgba(0, 19, 145, 0.24);
+    }
+
+    .ct-btn-royal:hover {
+      background-color: var(--bbva-midnight);
+      color: var(--bbva-white);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 22px rgba(7, 14, 70, 0.38);
+    }
+
+    .ct-btn-white {
+      background-color: var(--bbva-sand);
+      color: var(--bbva-electric);
+      border: 1px solid var(--bbva-sand);
+      box-shadow: 0 6px 18px rgba(7, 14, 70, 0.28);
+    }
+
+    .ct-btn-white:hover {
+      background-color: var(--bbva-serene);
+      color: var(--bbva-electric);
+      border-color: var(--bbva-serene);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 26px rgba(133, 200, 255, 0.45);
+    }
+
+    /* Botón Resaltado con Acentos BBVA: "Herramientas y Gemas" */
+    .ct-btn-glow-special {
+      background: linear-gradient(135deg, var(--bbva-electric) 0%, var(--bbva-midnight) 100%);
+      color: var(--bbva-sand) !important;
+      border: 2px solid var(--bbva-accent-aqua);
+      box-shadow: 0 0 18px rgba(140, 232, 234, 0.7), 0 4px 14px rgba(0, 19, 145, 0.35);
+      animation: ct-glow-pulse 2.4s infinite ease-in-out;
+    }
+
+    .ct-btn-glow-special i {
+      color: var(--bbva-accent-yellow);
+    }
+
+    .ct-btn-glow-special:hover {
+      transform: translateY(-3px) scale(1.03);
+      border-color: var(--bbva-accent-yellow);
+      box-shadow: 0 0 28px rgba(255, 231, 97, 0.85), 0 8px 22px rgba(0, 19, 145, 0.5);
+    }
+
+    @keyframes ct-glow-pulse {
+      0%, 100% { box-shadow: 0 0 14px rgba(140, 232, 234, 0.55), 0 4px 12px rgba(0, 19, 145, 0.3); }
+      50% { box-shadow: 0 0 26px rgba(133, 200, 255, 0.95), 0 6px 20px rgba(0, 19, 145, 0.5); }
+    }
+
+    /* Destello de luz diagonal (Shine effect) */
+    .ct-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 65%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+      transform: skewX(-25deg);
+      z-index: 2;
+    }
+
+    .ct-btn-white::before {
+      background: linear-gradient(120deg, transparent, rgba(133, 200, 255, 0.65), transparent);
+    }
+
+    .ct-btn:hover::before {
+      animation: ct-shine-hover 0.75s ease-in-out;
+    }
+
+    .ct-btn-periodic::before,
+    .ct-btn-glow-special::before {
+      animation: ct-shine-loop 3.2s infinite;
+    }
+
+    @keyframes ct-shine-hover {
+      0% { left: -130%; }
+      100% { left: 160%; }
+    }
+
+    @keyframes ct-shine-loop {
+      0%, 65% { left: -130%; }
+      90%, 100% { left: 160%; }
+    }
+
+    /* ==========================================================================
+       HERO BANNER ("Crédito Tradicional" en Georgia 60pt / Line-height 96%)
+       Fondo inspirado en los edificios corporativos de BBVA Landmark
+       ========================================================================== */
+    .ct-hero-banner {
+      position: relative;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-color: var(--bbva-midnight);
+      background-image: 
+        linear-gradient(180deg, rgba(7, 14, 70, 0.58) 0%, rgba(0, 19, 145, 0.52) 100%),
+        url('landmark-bbva-hero.jpg');
+      background-size: cover;
+      background-position: center;
+      border-bottom: 4px solid var(--bbva-serene);
+    }
+
+    .ct-hero-title {
+      position: relative;
+      z-index: 2;
+      color: var(--bbva-sand);
+      font-family: Georgia, 'Times New Roman', Times, serif;
+      font-weight: 700;
+      font-size: clamp(3rem, 6vw, 80px);
+      line-height: 0.96;
+      margin: 0;
+      text-shadow: 0 3px 14px rgba(7, 14, 70, 0.45);
+    }
+
+    .ct-top-pillbar {
+      background: var(--bbva-sand);
+      border-bottom: 1px solid var(--bbva-gray-100);
+      padding: 16px 0;
+    }
+
+    .ct-top-pillbar-inner {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .ct-top-pillbar .ct-btn {
+      width: auto;
+      padding: 10px 26px;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* ==========================================================================
+       SECCIÓN 1: NUEVO CIRCUITO DE SANCIÓN MAYORISTA
+       + AMBOS BOTONES CON EL MISMO DISEÑO Y COLORES + PRESENTACIONES DEBAJO
+       ========================================================================== */
+    .ct-section-crediflex {
+      padding: 48px 0 42px;
+      background-color: var(--bbva-white);
+    }
+
+    .ct-crediflex-top {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 40px;
+      align-items: center;
+      background-color: var(--bbva-white);
+    }
+
+    .ct-crediflex-title {
+      color: var(--bbva-electric);
+      font-size: 2.2rem;
+      text-align: center;
+      margin: 0 0 18px;
+      line-height: 1.05;
+    }
+
+    .ct-crediflex-text {
+      font-size: 0.96rem;
+      color: var(--bbva-midnight);
+      text-align: justify;
+      margin: 0 0 22px;
+      line-height: 1.65;
+    }
+
+    .ct-crediflex-text .ct-hl-cyan {
+      color: #007A87;
+      font-weight: 700;
+    }
+
+    .ct-crediflex-text .ct-hl-blue {
+      color: var(--bbva-electric);
+      font-weight: 700;
+    }
+
+    /* Los 2 botones de Nuevo Circuito con el mismo diseño y colores */
+    .ct-crediflex-actions-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .ct-mayorista-action-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.92rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.28s ease, box-shadow 0.28s ease, background-color 0.28s ease, border-color 0.28s ease;
+    }
+
+    /* Diseño y colores unificados para ambos botones (Módulo Mayorista y Gemma Mayorista) */
+    .ct-action-module {
+      background-color: var(--bbva-sand);
+      color: var(--bbva-electric);
+      border: 1.5px solid var(--bbva-serene);
+      border-left: 6px solid var(--bbva-electric);
+      box-shadow: 0 6px 16px rgba(0, 19, 145, 0.08);
+    }
+
+    .ct-action-module i {
+      color: var(--bbva-electric);
+      font-size: 1.05rem;
+      transition: transform 0.28s ease, color 0.28s ease;
+    }
+
+    .ct-action-module:hover {
+      background-color: var(--bbva-electric);
+      color: var(--bbva-white);
+      border-color: var(--bbva-electric);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 19, 145, 0.22);
+    }
+
+    .ct-action-module:hover i {
+      color: var(--bbva-serene);
+      transform: translateX(3px);
+    }
+
+    /* Las 2 tarjetas de presentación con iconos justo debajo de los 2 botones */
+    .ct-inline-presentations-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .ct-pres-mini-card {
+      background: var(--bbva-sand);
+      border: 1px solid var(--bbva-gray-100);
+      border-bottom: 4px solid var(--bbva-serene);
+      border-radius: 14px;
+      padding: 18px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: var(--bbva-midnight);
+      box-shadow: 0 6px 16px rgba(7, 14, 70, 0.05);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.32s ease,
+                  border-color 0.32s ease,
+                  background-color 0.32s ease;
+    }
+
+    .ct-pres-mini-card:hover {
+      transform: translateY(-6px);
+      background: var(--bbva-white);
+      border-color: var(--bbva-electric);
+      box-shadow: 0 16px 32px rgba(0, 19, 145, 0.15);
+    }
+
+    .ct-pres-mini-card img {
+      width: 86px;
+      height: 86px;
+      object-fit: contain;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 6px 14px rgba(7, 14, 70, 0.14));
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .ct-pres-mini-card:hover img {
+      transform: scale(1.1) translateY(-2px);
+      filter: drop-shadow(0 10px 20px rgba(133, 200, 255, 0.55));
+    }
+
+    .ct-pres-mini-card h4 {
+      margin: 0;
+      font-size: 0.96rem;
+      line-height: 1.22;
+      color: var(--bbva-electric);
+      font-weight: 700;
+    }
+
+    .ct-coins-video-wrap {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--bbva-white);
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .ct-coins-video {
+      width: 100%;
+      max-width: 540px;
+      height: auto;
+      display: block;
+      border: none;
+      outline: none;
+      box-shadow: none;
+      background-color: var(--bbva-white);
+      mix-blend-mode: multiply;
+      filter: brightness(1.09) contrast(1.08) saturate(1.05);
+      -webkit-mask-image: radial-gradient(ellipse 82% 80% at 50% 50%, #000 62%, transparent 98%);
+      mask-image: radial-gradient(ellipse 82% 80% at 50% 50%, #000 62%, transparent 98%);
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       SECCIÓN 2: MEDIANA PARAMÉTRICA + TEMPLATES + TABLAS Y GEMA DE PROYECCIONES
+       ========================================================================== */
+    .ct-section-boss {
+      background-color: var(--bbva-sand);
+      padding: 44px 0 64px;
+      border-top: 2px solid var(--bbva-gray-200);
+    }
+
+    .ct-clean-section-block {
+      padding: 20px 0;
+    }
+
+    .ct-clean-header {
+      text-align: center;
+      margin-bottom: 34px;
+    }
+
+    .ct-clean-header h2 {
+      font-size: 2.1rem;
+      line-height: 1.05;
+      color: var(--bbva-electric);
+      margin: 0 0 12px;
+    }
+
+    .ct-clean-header p {
+      font-size: 1.06rem;
+      line-height: 1.22;
+      color: var(--bbva-electric);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Grid de íconos directos */
+    .ct-direct-icons-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .ct-direct-card {
+      background: var(--bbva-white);
+      border: 1px solid var(--bbva-gray-100);
+      border-bottom: 4px solid var(--bbva-serene);
+      border-radius: 14px;
+      padding: 28px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      text-decoration: none;
+      color: var(--bbva-midnight);
+      box-shadow: 0 6px 18px rgba(7, 14, 70, 0.05);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.32s ease,
+                  border-color 0.32s ease,
+                  background-color 0.32s ease;
+      cursor: pointer;
+    }
+
+    .ct-direct-card:hover {
+      transform: translateY(-8px);
+      background: var(--bbva-white);
+      border-color: var(--bbva-electric);
+      box-shadow: 0 18px 36px rgba(0, 19, 145, 0.16);
+    }
+
+    .ct-direct-card img {
+      width: 112px;
+      height: 112px;
+      object-fit: contain;
+      margin-bottom: 16px;
+      filter: drop-shadow(0 8px 16px rgba(7, 14, 70, 0.14));
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .ct-direct-card:hover img {
+      transform: scale(1.1) translateY(-3px);
+      filter: drop-shadow(0 12px 22px rgba(133, 200, 255, 0.55));
+    }
+
+    .ct-direct-card h4 {
+      margin: 0 0 8px;
+      font-size: 1.02rem;
+      line-height: 1.15;
+      color: var(--bbva-electric);
+      font-weight: 700;
+    }
+
+    .ct-direct-card p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--bbva-gray-600);
+      line-height: 1.55;
+    }
+
+    .ct-templates-duo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      max-width: 780px;
+      margin: 0 auto 36px;
+    }
+
+    /* ==========================================================================
+       TARJETAS PROTAGONISTAS ULTRA-DESTACADAS:
+       TABLAS DE AMORTIZACIÓN Y GEMA DE PROYECCIONES FINANCIERAS (CON DIAMANTE BRILLANTE)
+       ========================================================================== */
+    .ct-featured-finance-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      margin-top: 12px;
+      scroll-margin-top: 32px;
+    }
+
+    .ct-finance-super-card {
+      position: relative;
+      background: linear-gradient(135deg, var(--bbva-midnight) 0%, var(--bbva-electric) 100%);
+      color: var(--bbva-sand);
+      border-radius: 16px;
+      padding: 34px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      text-decoration: none;
+      border: 2px solid var(--bbva-serene);
+      box-shadow: 0 0 25px rgba(133, 200, 255, 0.45), 0 18px 40px rgba(7, 14, 70, 0.35);
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      animation: ct-super-card-glow 3s infinite alternate ease-in-out;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+      z-index: 1;
+    }
+
+    .ct-finance-gem-card {
+      background: linear-gradient(135deg, #070E46 0%, #001391 55%, #0c4a6e 100%);
+      border-color: var(--bbva-accent-aqua);
+    }
+
+    .ct-finance-super-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -140%;
+      width: 70%;
+      height: 100%;
+      background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(247, 248, 248, 0.25),
+        rgba(140, 232, 234, 0.4),
+        transparent
+      );
+      transform: skewX(-25deg);
+      animation: ct-card-shine-sweep 3.8s infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes ct-card-shine-sweep {
+      0%, 60% { left: -140%; }
+      90%, 100% { left: 160%; }
+    }
+
+    @keyframes ct-super-card-glow {
+      0% {
+        box-shadow: 0 0 18px rgba(133, 200, 255, 0.4), 0 14px 32px rgba(7, 14, 70, 0.3);
+        border-color: var(--bbva-serene);
+      }
+      100% {
+        box-shadow: 0 0 36px rgba(140, 232, 234, 0.85), 0 20px 44px rgba(0, 19, 145, 0.55);
+        border-color: var(--bbva-accent-yellow);
+      }
+    }
+
+    .ct-finance-super-card:hover {
+      transform: translateY(-8px) scale(1.015);
+      border-color: var(--bbva-accent-yellow);
+      box-shadow: 0 0 44px rgba(255, 231, 97, 0.9), 0 24px 50px rgba(7, 14, 70, 0.55);
+      color: var(--bbva-sand);
+    }
+
+    .ct-finance-super-card img {
+      width: 122px;
+      height: 122px;
+      object-fit: contain;
+      flex-shrink: 0;
+      z-index: 3;
+      filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.45));
+      animation: ct-float-icon 3.2s ease-in-out infinite;
+      transition: transform 0.35s ease, filter 0.35s ease;
+    }
+
+    .ct-diamond-glow-img {
+      filter: drop-shadow(0 0 18px rgba(140, 232, 234, 0.85)) drop-shadow(0 0 32px rgba(255, 231, 97, 0.5)) !important;
+      animation: ct-diamond-pulse 2.4s ease-in-out infinite !important;
+    }
+
+    @keyframes ct-diamond-pulse {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 0 16px rgba(140, 232, 234, 0.75)) drop-shadow(0 0 28px rgba(133, 200, 255, 0.45));
+      }
+      50% {
+        transform: translateY(-7px) scale(1.07);
+        filter: drop-shadow(0 0 28px rgba(255, 231, 97, 0.95)) drop-shadow(0 0 42px rgba(140, 232, 234, 0.85));
+      }
+    }
+
+    @keyframes ct-float-icon {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    .ct-finance-super-card:hover img {
+      transform: scale(1.12) rotate(-4deg);
+    }
+
+    .ct-finance-card-info {
+      z-index: 3;
+    }
+
+    .ct-finance-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bbva-accent-yellow);
+      color: var(--bbva-midnight);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 5px 14px;
+      border-radius: 50px;
+      margin-bottom: 12px;
+    }
+
+    .ct-finance-badge.ct-badge-aqua {
+      background: linear-gradient(90deg, var(--bbva-accent-aqua) 0%, var(--bbva-accent-yellow) 100%);
+      box-shadow: 0 0 14px rgba(140, 232, 234, 0.6);
+    }
+
+    .ct-finance-card-info h4 {
+      font-family: Georgia, serif;
+      font-size: 1.75rem;
+      line-height: 1.05;
+      margin: 0 0 10px;
+      color: var(--bbva-sand);
+    }
+
+    .ct-finance-card-info p {
+      margin: 0;
+      font-size: 0.92rem;
+      color: var(--bbva-serene);
+      line-height: 1.55;
+    }
+
+    /* ==========================================================================
+       SECCIÓN 3: BLOQUE INFERIOR DE 3 TARJETAS EJECUTIVAS CON MICROSITIOS ALINEADOS
+       (¿QUÉ ES CREDIFLEX? | GARANTÍA BANCOMEXT | GARANTÍA NAFIN)
+       ========================================================================== */
+    .ct-section-bottom-trio {
+      padding: 64px 0 76px;
+      background: linear-gradient(180deg, var(--bbva-white) 0%, var(--bbva-sand) 100%);
+      border-top: 2px solid var(--bbva-gray-200);
+    }
+
+    .ct-bottom-trio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      align-items: stretch;
+    }
+
+    .ct-executive-trio-card {
+      background: var(--bbva-white);
+      border: 1px solid var(--bbva-gray-100);
+      border-top: 6px solid var(--bbva-electric);
+      border-bottom: 4px solid var(--bbva-serene);
+      border-radius: 16px;
+      padding: 34px 28px 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 12px 32px rgba(7, 14, 70, 0.07);
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+                  box-shadow 0.32s ease,
+                  border-color 0.32s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ct-executive-trio-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 22px 46px rgba(0, 19, 145, 0.16);
+      border-top-color: var(--bbva-midnight);
+    }
+
+    .ct-executive-card-top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+    }
+
+    .ct-executive-trio-card h2 {
+      color: var(--bbva-electric);
+      font-size: 1.85rem;
+      line-height: 1.08;
+      text-align: center;
+      margin: 0 0 18px;
+      min-height: 2.2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ct-executive-trio-card p {
+      font-size: 0.95rem;
+      color: var(--bbva-midnight);
+      text-align: justify;
+      margin: 0 0 24px;
+      line-height: 1.65;
+    }
+
+    .ct-executive-card-footer {
+      width: 100%;
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px dashed var(--bbva-gray-200);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+    }
+
+    /* Tarjeta horizontal compacta y estética para el icono de Manuales y Procesos (arriba del micrositio) */
+    .ct-manual-pill-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      padding: 12px 18px;
+      background: var(--bbva-sand);
+      border: 1px solid var(--bbva-gray-200);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--bbva-electric);
+      transition: transform 0.28s ease, background-color 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .ct-manual-pill-link:hover {
+      background: var(--bbva-white);
+      border-color: var(--bbva-serene);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(0, 19, 145, 0.12);
+    }
+
+    .ct-manual-pill-link img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 8px rgba(7, 14, 70, 0.14));
+      transition: transform 0.3s ease;
+    }
+
+    .ct-manual-pill-link:hover img {
+      transform: scale(1.1);
+    }
+
+    .ct-manual-pill-text {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+
+    .ct-manual-pill-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--bbva-electric);
+      line-height: 1.2;
+    }
+
+    .ct-manual-pill-sub {
+      font-size: 0.78rem;
+      color: var(--bbva-gray-600);
+      margin-top: 2px;
+    }
+
+    /* ==========================================================================
+       MODAL INTERACTIVO DE INSTRUCCIONES PARA LA GEMA DE PROYECCIONES FINANCIERAS
+       ========================================================================== */
+    .ct-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 14, 70, 0.82);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .ct-modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .ct-modal-box {
+      background: var(--bbva-sand);
+      color: var(--bbva-midnight);
+      width: 100%;
+      max-width: 780px;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 18px;
+      border: 2px solid var(--bbva-serene);
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .ct-modal-overlay.active .ct-modal-box {
+      transform: translateY(0) scale(1);
+    }
+
+    .ct-modal-header {
+      background: linear-gradient(135deg, var(--bbva-midnight) 0%, var(--bbva-electric) 100%);
+      color: var(--bbva-sand);
+      padding: 24px 30px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 3px solid var(--bbva-accent-aqua);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .ct-modal-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .ct-modal-header-left img {
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 14px rgba(140, 232, 234, 0.85));
+    }
+
+    .ct-modal-header h3 {
+      font-family: Georgia, serif;
+      font-size: 1.5rem;
+      line-height: 1.1;
+      margin: 0 0 4px;
+      color: var(--bbva-sand);
+    }
+
+    .ct-modal-header span {
+      font-size: 0.85rem;
+      color: var(--bbva-serene);
+    }
+
+    .ct-modal-close {
+      background: rgba(247, 248, 248, 0.12);
+      color: var(--bbva-sand);
+      border: 1px solid rgba(133, 200, 255, 0.35);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .ct-modal-close:hover {
+      background: #E11D48;
+      border-color: #E11D48;
+      transform: rotate(90deg);
+    }
+
+    .ct-modal-body {
+      padding: 28px 30px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .ct-req-alert {
+      background: #E0F2FE;
+      border-left: 5px solid var(--bbva-electric);
+      padding: 16px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: var(--bbva-midnight);
+    }
+
+    .ct-req-alert strong {
+      color: var(--bbva-electric);
+    }
+
+    .ct-step-card {
+      background: var(--bbva-white);
+      border: 1px solid var(--bbva-gray-200);
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 14px rgba(7, 14, 70, 0.05);
+    }
+
+    .ct-step-badge {
+      display: inline-block;
+      background: var(--bbva-electric);
+      color: var(--bbva-sand);
+      font-weight: 700;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: 50px;
+      margin-bottom: 10px;
+    }
+
+    .ct-step-card h4 {
+      font-family: Georgia, serif;
+      font-size: 1.18rem;
+      color: var(--bbva-electric);
+      margin: 0 0 8px;
+    }
+
+    .ct-step-card p {
+      margin: 0 0 14px;
+      font-size: 0.93rem;
+      color: var(--bbva-midnight);
+      line-height: 1.55;
+    }
+
+    .ct-prompt-copy-box {
+      background: var(--bbva-midnight);
+      color: var(--bbva-sand);
+      padding: 16px 18px;
+      border-radius: 10px;
+      border: 1px solid var(--bbva-serene);
+      font-size: 0.88rem;
+      line-height: 1.55;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .ct-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bbva-accent-yellow);
+      color: var(--bbva-midnight);
+      border: none;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.86rem;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .ct-copy-btn:hover {
+      background: var(--bbva-accent-aqua);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       4. ANIMACIÓN SCROLL REVEAL (IntersectionObserver)
+       ========================================================================== */
+    .ct-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease-out, transform 0.65s ease-out;
+    }
+
+    .ct-reveal.ct-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ==========================================================================
+       RESPONSIVE DESIGN (CELULARES Y TABLETS)
+       ========================================================================== */
+    @media (max-width: 1024px) {
+      .ct-direct-icons-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .ct-crediflex-top,
+      .ct-featured-finance-grid,
+      .ct-bottom-trio-grid {
+        grid-template-columns: 1fr;
+      }
+      .ct-executive-trio-card h2 {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .ct-crediflex-actions-row,
+      .ct-inline-presentations-grid,
+      .ct-direct-icons-grid,
+      .ct-templates-duo-grid {
+        grid-template-columns: 1fr;
+      }
+      .ct-finance-super-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="ct-master-wrap">
+
+  <!-- ================= HERO BANNER ("Crédito Tradicional" en Georgia 60pt / Line-height 96%) ================= -->
+  <header class="ct-hero-banner">
+    <h1 class="ct-hero-title ct-serif-large">Crédito<br>Tradicional</h1>
+  </header>
+
+  <!-- Barra de accesos rápidos con los 3 botones al principio -->
+  <nav class="ct-top-pillbar">
+    <div class="ct-container ct-top-pillbar-inner">
+      <a href="https://bbva-academia-beyg.appspot.com/" target="_blank" rel="noopener" class="ct-btn ct-btn-royal">
+        <i class="fa-solid fa-building-columns"></i> Banca de Empresas e Instituciones
+      </a>
+      <a href="https://norma-riesgos-front-dot-bbva-bancomer-normatividad.appspot.com/" target="_blank" rel="noopener" class="ct-btn ct-btn-royal">
+        <i class="fa-solid fa-scale-balanced"></i> Normatividad de Riesgos (MEX)
+      </a>
+      <a href="#seccion-amortizacion-proyecciones" class="ct-btn ct-btn-glow-special">
+        <i class="fa-solid fa-gem"></i> Herramientas y Gemas
+      </a>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       SECCIÓN 1: NUEVO CIRCUITO DE SANCIÓN DE CRÉDITO MAYORISTA
+       (Ambos botones con el mismo diseño y colores + debajo las 2 presentaciones)
+       ========================================================================== -->
+  <section class="ct-section-crediflex">
+    <div class="ct-container">
+      
+      <div class="ct-crediflex-top ct-reveal">
+        <div>
+          <h2 class="ct-crediflex-title ct-serif">Nuevo circuito de sanción de crédito Mayorista</h2>
+          <p class="ct-crediflex-text">
+            Conoce la nueva manera de generar tu <span class="ct-hl-cyan">Programa Financiero</span> apoyado por <span class="ct-hl-blue">herramientas digitales</span> y el asistente de inteligencia artificial <span class="ct-hl-blue">Gemma</span>.
+          </p>
+
+          <!-- Botones del Módulo Mayorista y Gemma con el mismo diseño y colores -->
+          <div class="ct-crediflex-actions-row">
+            <a href="https://bbva-academia-beyg.appspot.com/product/621dd9c1be1fb8586790064f43a69d0810fa824d94b55f3cb25536995a1e328fd4bf45b85922a4074ded1d23db872ec1625GaF8ScSm3kLcPZpOYNA==" target="_blank" rel="noopener" class="ct-mayorista-action-btn ct-action-module">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Ir al Módulo Mayorista
+            </a>
+            <a href="https://gemini.google.com/gem/92b12ffcbd77/910f20c91453067d?usp=sharing" target="_blank" rel="noopener" class="ct-mayorista-action-btn ct-action-module">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Abrir Gemma Mayorista
+            </a>
+          </div>
+
+          <!-- Iconos de las presentaciones justo debajo de los 2 botones -->
+          <div class="ct-inline-presentations-grid">
+            <a href="https://docs.google.com/presentation/d/12cvu1rAWBjJMzEhSPmneIVC6OCa7MfOo_6rrDIQLRT0/edit?slide=id.g3c9a537fd24_7_24#slide=id.g3c9a537fd24_7_24" target="_blank" rel="noopener" class="ct-pres-mini-card">
+              <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/analyze-doc-glass.png" alt="Circuito de Sanción Mayorista 1">
+              <h4>Circuito de Sanción Mayorista 1</h4>
+            </a>
+
+            <a href="https://docs.google.com/presentation/d/1m-xMx8TPdLEvygYnGNXdG5vihyVuEZfHlwCAw1aYsLA/edit?slide=id.g2ead8a926b6_0_1356#slide=id.g2ead8a926b6_0_1356" target="_blank" rel="noopener" class="ct-pres-mini-card">
+              <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/newsletter-glass.png" alt="Programa Financiero Mayorista 2">
+              <h4>Programa Financiero Mayorista 2</h4>
+            </a>
+          </div>
+        </div>
+
+        <div class="ct-coins-video-wrap">
+          <video class="ct-coins-video" src="monedas.mp4" autoplay loop muted playsinline></video>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECCIÓN 2: MEDIANA PARAMÉTRICA + TEMPLATES Y MODELOS FINANCIEROS
+       ========================================================================== -->
+  <section class="ct-section-boss" id="seccion-mayorista-jefe">
+    <div class="ct-container">
+
+      <!-- MEDIANA PARAMÉTRICA -->
+      <div class="ct-clean-section-block ct-reveal">
+        <div class="ct-clean-header">
+          <h2 class="ct-serif">Mediana Paramétrica</h2>
+          <p class="ct-lead-paragraph">Haz clic directamente sobre cualquier herramienta para acceder a la academia, NotebookLM, integración de expediente con Gemma Carol o Piloto Bridge.</p>
+        </div>
+
+        <div class="ct-direct-icons-grid">
+          <a href="https://bbva-academia-beyg.appspot.com/product/fb10c5bbc1a504f9299fe0300bd358143818c56c826271bf9dc8ddd8b2d9337114a0a92e772759a0d60adc236127a739MoL8Vmk_e5gDO9szGe3rlw==" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/rule-glass.png" alt="Mediana Paramétrica">
+            <h4>Módulo Mediana Paramétrica</h4>
+            <p>Criterios y metodología en Academia BEyG</p>
+          </a>
+
+          <a href="https://notebook.google.com/notebook/701a9023-35dc-45ed-aa91-4971283310e8?pli=1" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/book-glass.png" alt="NotebookLM">
+            <h4>Notebook Paramétrica</h4>
+            <p>Cuaderno inteligente de consulta interactiva</p>
+          </a>
+
+          <a href="https://gemini.google.com/gem/b57c8055bfff?ts=6a6cebd9&usp=drive-dynamite" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/checkbook-glass.png" alt="Gemma Carol">
+            <h4>Gemma Carol (Expediente)</h4>
+            <p>Asistente IA para integración de expediente</p>
+          </a>
+
+          <a href="https://mail.google.com/mail/u/0/#advanced-search/subject=bridge&subset=all&within=1d&sizeoperator=s_sl&sizeunit=s_smb/FMfcgzQjgqKMtSpFvTctzMKhflsDdgjx" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/newsletter-glass.png" alt="Piloto Bridge Gmail">
+            <h4>Piloto Bridge (Correo)</h4>
+            <p>Búsqueda avanzada de seguimiento en Gmail</p>
+          </a>
+
+          <a href="https://script.google.com/a/macros/bbva.com/s/AKfycbyU-pv7g_C6Ff8svsOBIPueuKOv_06mMZEtwyJHLAv1RsNeaDcRWQb_-GpfnZiAcn8p/exec" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/bankbook-glass.png" alt="Piloto Bridge Web App">
+            <h4>Piloto Bridge (App Web)</h4>
+            <p>Aplicativo operativo en Google Apps Script</p>
+          </a>
+        </div>
+      </div>
+
+      <hr class="ct-divider-dashed">
+
+      <!-- TEMPLATES Y MODELOS FINANCIEROS DESTACADOS -->
+      <div class="ct-clean-section-block ct-reveal">
+        <div class="ct-clean-header">
+          <h2 class="ct-serif">Templates y Modelos Financieros</h2>
+          <p class="ct-lead-paragraph">Selecciona directamente el formato o plantilla financiera que deseas consultar en Google Drive.</p>
+        </div>
+
+        <!-- Checklist y Términos -->
+        <div class="ct-templates-duo-grid">
+          <a href="https://drive.google.com/drive/folders/16SJtspqc1QZG4_pHTaQYwLOEc6wITQIs" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/checkbook-glass.png" alt="Checklist Oficial">
+            <h4>Checklist de Integración</h4>
+            <p>Formatos y requisitos documentales oficiales en Google Drive</p>
+          </a>
+
+          <a href="https://drive.google.com/drive/folders/1PEVadB-7uVPFVzfEms9CNUFa_arRbMWI" target="_blank" rel="noopener" class="ct-direct-card">
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/analyze-doc-glass.png" alt="Términos y Condiciones">
+            <h4>Términos y Condiciones</h4>
+            <p>Plantillas normativas de términos y condiciones vigentes</p>
+          </a>
+        </div>
+
+        <!-- DESTACADOS: TABLAS DE AMORTIZACIÓN Y GEMA DE PROYECCIONES FINANCIERAS -->
+        <div class="ct-featured-finance-grid" id="seccion-amortizacion-proyecciones">
+          
+          <!-- Tarjeta 1: Tablas de Amortización -->
+          <a href="AMORTIZACION_CONSOLIDADA.html" target="_blank" rel="noopener" class="ct-finance-super-card">
+            <div class="ct-finance-card-info">
+              <span class="ct-finance-badge"><i class="fa-solid fa-star"></i> Herramienta Financiera Clave</span>
+              <h4>Tablas de amortización</h4>
+              <p>Haz clic aquí para acceder a las plantillas de simulación de pagos fijos y esquemas revolventes en Google Drive.</p>
+            </div>
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/bankbook-glass.png" alt="Tablas de amortización">
+          </a>
+
+          <!-- Tarjeta 2: Proyecciones Financieras (Gema IA con Diamante Brillante y Modal de Instrucciones) -->
+          <button type="button" class="ct-finance-super-card ct-finance-gem-card" id="ctOpenGemModalBtn">
+            <div class="ct-finance-card-info">
+              <span class="ct-finance-badge ct-badge-aqua"><i class="fa-solid fa-gem"></i> Gema IA • Modelaje Automatizado</span>
+              <h4>Proyecciones financieras (Gema)</h4>
+              <p>Haz clic aquí para ver las instrucciones paso a paso y acceder a las 2 Gemas generadoras de tus proyecciones en Excel (.zip).</p>
+            </div>
+            <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/diamond-glass.png" alt="Gema de Proyecciones Financieras" class="ct-diamond-glow-img">
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SECCIÓN 3: BLOQUE INFERIOR DE 3 TARJETAS EJECUTIVAS CON MICROSITIOS ALINEADOS
+       (¿QUÉ ES CREDIFLEX? | GARANTÍA BANCOMEXT | GARANTÍA NAFIN)
+       ========================================================================== -->
+  <section class="ct-section-bottom-trio">
+    <div class="ct-container">
+      <div class="ct-bottom-trio-grid ct-reveal">
+        
+        <!-- Columna 1: ¿Qué es CREDIFLEX? -->
+        <article class="ct-executive-trio-card">
+          <div class="ct-executive-card-top">
+            <h2 class="ct-serif">¿Qué es CREDIFLEX?</h2>
+            <p class="ct-crediflex-text">
+              <span class="ct-hl-cyan">Crédito Líquido Flex</span> es una línea de crédito disponible en <span class="ct-hl-blue">MXP</span> y <span class="ct-hl-blue">USD</span> que permite a los clientes realizar disposiciones inmediatas a través de la banca en línea; en esquema <span class="ct-hl-blue">revolvente</span> ó, de <span class="ct-hl-blue">pagos fijos</span> de capital de acuerdo a las necesidades del negocio.
+            </p>
+          </div>
+          <div class="ct-executive-card-footer">
+            <a href="https://bbva-academia-beyg.appspot.com/" target="_blank" rel="noopener" class="ct-btn ct-btn-royal ct-btn-periodic">
+              Micrositio: IntraNet
+            </a>
+          </div>
+        </article>
+
+        <!-- Columna 2: Garantía BANCOMEXT (Manuales y Procesos arriba del Micrositio para alinear los 3 botones) -->
+        <article class="ct-executive-trio-card">
+          <div class="ct-executive-card-top">
+            <h2 class="ct-serif">Garantía BANCOMEXT</h2>
+            <p>
+              Esquema mediante el cual Bancomext tiene un porcentaje de participación en el Riesgo, sobre aquellos financiamientos que BBVA Bancomer otorga a sus clientes.
+            </p>
+          </div>
+          <div class="ct-executive-card-footer">
+            <a href="https://drive.google.com/drive/folders/16SJtspqc1QZG4_pHTaQYwLOEc6wITQIs" target="_blank" rel="noopener" class="ct-manual-pill-link">
+              <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/book-glass.png" alt="Manuales y Procesos Bancomext">
+              <div class="ct-manual-pill-text">
+                <span class="ct-manual-pill-title">Manuales y Procesos</span>
+                <span class="ct-manual-pill-sub">Documentación en Google Drive</span>
+              </div>
+            </a>
+            <a href="https://bbva-academia-beyg.appspot.com/" target="_blank" rel="noopener" class="ct-btn ct-btn-royal ct-btn-periodic">
+              Micrositio: Garantías Bancomext
+            </a>
+          </div>
+        </article>
+
+        <!-- Columna 3: Garantía NAFIN -->
+        <article class="ct-executive-trio-card">
+          <div class="ct-executive-card-top">
+            <h2 class="ct-serif">Garantía NAFIN</h2>
+            <p>
+              Es un esquema mediante el cual Nacional Financiera (Nafin), compartirá el riesgo respecto del saldo insoluto de los financiamientos que Bancomer otorga a sus clientes.
+            </p>
+          </div>
+          <div class="ct-executive-card-footer">
+            <a href="https://bbva-academia-beyg.appspot.com/" target="_blank" rel="noopener" class="ct-btn ct-btn-royal ct-btn-periodic">
+              Micrositio: Garantías NAFIN
+            </a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       VENTANA MODAL CON LAS INSTRUCCIONES PASO A PASO DE LA GEMA DE PROYECCIONES
+       ========================================================================== -->
+  <div class="ct-modal-overlay" id="ctGemModal" role="dialog" aria-modal="true" aria-labelledby="ctGemModalTitle">
+    <div class="ct-modal-box">
+      
+      <div class="ct-modal-header">
+        <div class="ct-modal-header-left">
+          <img src="https://assets.bbvaexperience.com/spherica/visual/microillustrations/diamond-glass.png" alt="Gema Diamante">
+          <div>
+            <h3 id="ctGemModalTitle">Instrucciones: Gema de Proyecciones Financieras Luis AU</h3>
+            <span>Flujo en 2 Gemas para generar y descargar tu archivo Excel (.zip)</span>
+          </div>
+        </div>
+        <button type="button" class="ct-modal-close" id="ctCloseGemModalBtn" aria-label="Cerrar instrucciones">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="ct-modal-body">
+        
+        <!-- Requisito previo -->
+        <div class="ct-req-alert">
+          <i class="fa-solid fa-circle-info"></i>
+          <strong>Antes de comenzar:</strong> Para realizar las proyecciones necesitas tener listos tus archivos de <strong>Cuadros de Pasivos</strong> y <strong>AFE</strong>.
+        </div>
+
+        <!-- Paso 1: Gema Extractora -->
+        <div class="ct-step-card">
+          <span class="ct-step-badge">Paso 1 • Gema de Extracción</span>
+          <h4>Extrae los datos de tu AFE y Cuadros de Pasivos</h4>
+          <p>
+            Ingresa a la primera Gema, dile <strong>"Hola"</strong> y sube tu <strong>AFE</strong> y tus <strong>Cuadros de Pasivos</strong>. Cuando la Gema te entregue el resultado procesado, dale clic en <strong>Copiar</strong>.
+          </p>
+          <a href="https://gemini.google.com/gem/1vHZqrUoHNWy1Rbdhummw9wxSqgK4N2xO?usp=sharing" target="_blank" rel="noopener" class="ct-btn ct-btn-royal" style="width: auto;">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Ir a Gema 1: Extraer datos para Proyecciones
+          </a>
+        </div>
+
+        <!-- Paso 2: Gema Generadora de Proyecciones -->
+        <div class="ct-step-card">
+          <span class="ct-step-badge">Paso 2 • Gema de Proyecciones</span>
+          <h4>Pega los datos obtenidos en la Gema de Proyecciones</h4>
+          <p>
+            Entra a la segunda Gema que te dará tus proyecciones y <strong>pega ahí lo que copiaste de la primera Gema</strong>. Envíalo y espera a que termine de generar el análisis.
+          </p>
+          <a href="https://gemini.google.com/gem/1_h-1D0VpiTPoFDyYyQo1Bu00RdyT0Aqz?usp=sharing" target="_blank" rel="noopener" class="ct-btn ct-btn-royal" style="width: auto;">
+            <i class="fa-solid fa-gem"></i> Ir a Gema 2: Generar mis Proyecciones
+          </a>
+        </div>
+
+        <!-- Paso 3: Instrucción obligatoria para descargar el archivo Excel en .zip -->
+        <div class="ct-step-card" style="border: 2px solid var(--bbva-electric);">
+          <span class="ct-step-badge" style="background: #007A87;">Paso 3 • Descarga del Excel (.zip)</span>
+          <h4>Solicita el archivo descargable con esta instrucción exacta</h4>
+          <p>
+            Una vez que mandes los datos en la segunda Gema, para poder descargar tu archivo físico debes copiar y pegar exactamente la siguiente instrucción:
+          </p>
+
+          <div class="ct-prompt-copy-box" id="ctPromptText">Genera mi archivo Excel y comprímelo en un .zip. Debes usar obligatoriamente tu herramienta de ejecución de código Python para crear y guardar físicamente el archivo .zip en el entorno. No me des el nombre del archivo escrito como texto o entre comillas invertidas; necesito que ejecutes el script de Python para que el sistema me devuelva el botón/etiqueta de descarga real del archivo generado.</div>
+
+          <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;">
+            <button type="button" class="ct-copy-btn" id="ctCopyPromptBtn">
+              <i class="fa-regular fa-copy"></i> Copiar instrucción para descargar .zip
+            </button>
+            <span style="font-size: 0.82rem; color: var(--bbva-gray-600);">
+              <i class="fa-solid fa-file-zipper"></i> Al enviarlo te devolverá el botón de descarga del <strong>.zip</strong> con tu Excel.
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    /* ==========================================================================
+       1. MODAL DE INSTRUCCIONES DE LA GEMA DE PROYECCIONES + COPIADO DE PROMPT
+       ========================================================================== */
+    const openModalBtn = document.getElementById('ctOpenGemModalBtn');
+    const closeModalBtn = document.getElementById('ctCloseGemModalBtn');
+    const gemModal = document.getElementById('ctGemModal');
+    const copyPromptBtn = document.getElementById('ctCopyPromptBtn');
+    const promptTextEl = document.getElementById('ctPromptText');
+
+    if (openModalBtn && gemModal) {
+      openModalBtn.addEventListener('click', () => {
+        gemModal.classList.add('active');
+      });
+    }
+
+    if (closeModalBtn && gemModal) {
+      closeModalBtn.addEventListener('click', () => {
+        gemModal.classList.remove('active');
+      });
+    }
+
+    if (gemModal) {
+      gemModal.addEventListener('click', (e) => {
+        if (e.target === gemModal) {
+          gemModal.classList.remove('active');
+        }
+      });
+    }
+
+    if (copyPromptBtn && promptTextEl) {
+      copyPromptBtn.addEventListener('click', () => {
+        const textToCopy = promptTextEl.textContent.trim();
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const originalHTML = copyPromptBtn.innerHTML;
+          copyPromptBtn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Instrucción copiada al portapapeles!';
+          copyPromptBtn.style.background = '#88E783';
+          setTimeout(() => {
+            copyPromptBtn.innerHTML = originalHTML;
+            copyPromptBtn.style.background = '';
+          }, 2600);
+        });
+      });
+    }
+
+    /* ==========================================================================
+       2. ANIMACIÓN SCROLL REVEAL (IntersectionObserver)
+       ========================================================================== */
+    const reveals = document.querySelectorAll('.ct-reveal');
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('ct-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      reveals.forEach(el => obs.observe(el));
+    } else {
+      reveals.forEach(el => el.classList.add('ct-visible'));
+    }
+  })();
+</script>
+
+</body>
+</html>

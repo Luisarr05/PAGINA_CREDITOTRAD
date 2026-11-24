@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasivos Bancarios</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ExcelJS para generación de Excel con formato, desgloses y análisis -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
+    <style>
+        :root {
+            --bbva-blue: #004481; 
+            --bbva-light-blue: #009ee3; 
+            --bbva-navy: #072146;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 30%, #00d2ff 0%, #0052d4 40%, #030b1e 90%) !important;
+            background-attachment: fixed !important;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* FONDO DE BALONES ANIMADOS EN NEÓN */
+        .background-balls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.85;
+        }
+
+        .ball {
+            position: absolute;
+            top: 100vh;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.8));
+            animation-name: floatDiagonal;
+            animation-iteration-count: infinite;
+            animation-timing-function: linear;
+            animation-fill-mode: backwards;
+        }
+
+        .ball:nth-child(1) { background-image: url('balon.avif'); left: 2%; width: 110px; height: 110px; animation-duration: 10s; animation-delay: 0s; }
+        .ball:nth-child(2) { background-image: url('balon_2.avif'); left: 10%; width: 150px; height: 150px; animation-duration: 14s; animation-delay: 3s; }
+        .ball:nth-child(3) { background-image: url('balon_3.avif'); left: 18%; width: 90px; height: 90px; animation-duration: 9s; animation-delay: 1s; }
+        .ball:nth-child(4) { background-image: url('balon_4.avif'); left: 26%; width: 170px; height: 170px; animation-duration: 16s; animation-delay: 5s; }
+        .ball:nth-child(5) { background-image: url('balon_5.avif'); left: 34%; width: 120px; height: 120px; animation-duration: 11s; animation-delay: 2s; }
+        .ball:nth-child(6) { background-image: url('balon_6.avif'); left: 42%; width: 180px; height: 180px; animation-duration: 17s; animation-delay: 4s; }
+        .ball:nth-child(7) { background-image: url('balon_7.avif'); left: 50%; width: 100px; height: 100px; animation-duration: 8.5s; animation-delay: 0.5s; }
+        .ball:nth-child(8) { background-image: url('balon_8.avif'); left: 58%; width: 160px; height: 160px; animation-duration: 13s; animation-delay: 2.5s; }
+        .ball:nth-child(9) { background-image: url('balon_9.avif'); left: 66%; width: 130px; height: 130px; animation-duration: 15s; animation-delay: 1.5s; }
+        .ball:nth-child(10) { background-image: url('balon_10.avif'); left: 74%; width: 175px; height: 175px; animation-duration: 18s; animation-delay: 3.5s; }
+        .ball:nth-child(11) { background-image: url('balon_11.avif'); left: 82%; width: 115px; height: 115px; animation-duration: 10.5s; animation-delay: 4.5s; }
+        .ball:nth-child(12) { background-image: url('balon_12.avif'); left: 88%; width: 140px; height: 140px; animation-duration: 12s; animation-delay: 1s; }
+        .ball:nth-child(13) { background-image: url('balon_13.avif'); left: 93%; width: 95px; height: 95px; animation-duration: 9.5s; animation-delay: 6s; }
+
+        @keyframes floatDiagonal {
+            0% { transform: translateY(10vh) translateX(0) rotate(0deg); }
+            100% { transform: translateY(-130vh) translateX(120px) rotate(360deg); }
+        }
+
+        /* TARJETAS Y COMPONENTES GLASSMORPHISM */
+        .glass-card {
+            background: rgba(3, 11, 30, 0.75) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            backdrop-filter: blur(14px) !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-input {
+            background-color: rgba(7, 16, 82, 0.8) !important;
+            border: 1px solid rgba(0, 212, 255, 0.3) !important;
+            color: #ffffff !important;
+            font-weight: 600;
+        }
+
+        .glass-input:focus {
+            border-color: #00d4ff !important;
+            box-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+            outline: none;
+        }
+
+        /* BOTONES NEÓN */
+        .btn-neon-blue {
+            background: linear-gradient(135deg, #00d4ff, #0052d4);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-neon-blue:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 212, 255, 0.8);
+        }
+
+        .btn-neon-green {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-neon-green:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+        }
+
+        /* EDICIÓN EN LÍNEA PARA CELDAS EN MODO DARK/GLASS */
+        .editable-cell-highlight {
+            background-color: transparent;
+            border: 1px dashed rgba(0, 212, 255, 0.3);
+            padding: 2px 4px;
+            cursor: text;
+            transition: all 0.2s ease;
+        }
+        .editable-cell-highlight:hover {
+            background-color: rgba(0, 212, 255, 0.1);
+        }
+        .editable-cell-highlight:focus-within {
+            background-color: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+        }
+        .cell-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: inherit;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        
+        /* Modificadores para tablas */
+        table { border-collapse: collapse; }
+        th, td { border-color: rgba(0, 212, 255, 0.3) !important; }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <!-- FONDO DE BALONES ANIMADOS FLOTANTES -->
+    <div class="background-balls">
+        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+        <div class="ball"></div>
+    </div>
+
+    <div class="relative z-10 p-4 md:p-8">
+        
+        <!-- HEADER INSTITUCIONAL -->
+        <header class="glass-card p-6 rounded-2xl mb-6 flex flex-col md:flex-row justify-between items-center animate__animated animate__fadeIn">
+            <div class="flex items-center space-x-4">
+                
+                <div>
+                    <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-sky-200 to-indigo-300">MÓDULO DE PASIVOS BANCARIOS VIGENTES</h1>
+                    <p class="text-xs text-cyan-200/80">Estructuración y Registro Consolidado</p>
+                </div>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-3">
+                <button onclick="sincronizarDatosConsolidados()" class="btn-neon-green font-bold px-5 py-2.5 rounded-xl text-xs flex items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt text-sm"></i> SINCRONIZAR A GOOGLE SHEETS
+                </button>
+            </div>
+        </header>
+
+        <!-- BARRA DE DATOS DEL CLIENTE -->
+        <section class="glass-card p-6 rounded-2xl mb-6 animate__animated animate__fadeIn">
+            <h2 class="text-base font-bold text-cyan-300 mb-4 flex items-center gap-2 tracking-wider">
+                <i class="fas fa-user-check text-cyan-400"></i> CLIENTE SELECCIONADO
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-cyan-200/80 mb-1">No. Cliente BBVA</label>
+                    <input type="text" id="no_cliente" placeholder="Ej. 234567" class="glass-input w-full p-2.5 rounded font-mono" readonly>
+                </div>
+                <div>
+                    <label class="block font-semibold text-cyan-200/80 mb-1">Empresa / Razón Social</label>
+                    <input type="text" id="empresa" placeholder="Razón Social" class="glass-input w-full p-2.5 rounded" readonly>
+                </div>
+                <div>
+                    <label class="block font-semibold text-cyan-200/80 mb-1">Grupo Financiero / Holding (Opcional)</label>
+                    <input type="text" id="grupo" placeholder="Ej. GRUPO VIDA" class="glass-input w-full p-2.5 rounded">
+                </div>
+            </div>
+            <div class="mt-3">
+                <span id="status-busqueda" class="text-xs font-bold text-cyan-400">
+                    <i class="fas fa-spinner fa-spin"></i> Cargando información...
+                </span>
+            </div>
+        </section>
+
+        <!-- VISTA Y CONTENEDOR DE PASIVOS BANCARIOS -->
+        <div id="contenedor-reporte">
+            <section class="glass-card p-6 rounded-2xl mb-6 animate__animated animate__fadeIn">
+                
+                <div class="flex justify-between items-center border-b border-cyan-500/30 pb-3 mb-4 flex-wrap gap-4">
+                    <div>
+                        <h2 class="text-base font-bold text-cyan-300 flex items-center gap-2 uppercase tracking-wider">
+                            <i class="fas fa-university text-cyan-400"></i> CARACTERÍSTICAS DE LOS PASIVOS BANCARIOS CONTRATADOS VIGENTES
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-1 font-semibold" id="pdf-cliente-subtitulo">
+                            CLIENTE: <span id="lbl-empresa-nombre" class="font-bold text-white">NO SELECCIONADO</span> | NO. CLIENTE: <span id="lbl-cliente-num" class="font-bold text-white">----</span>
+                        </p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="descargarExcelJS()" id="btn-descargar-excel" disabled class="btn-neon-blue text-white text-xs px-4 py-2 rounded-xl font-bold flex items-center gap-2 opacity-50 cursor-not-allowed uppercase tracking-wider">
+                            <i class="fas fa-file-excel"></i> Descargar Excel (Sheets)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- A) CORTO PLAZO -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-emerald-400 uppercase flex items-center gap-1.5 tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                            A) CORTO PLAZO (Plazo &le; 12 meses)
+                        </h3>
+                        <span class="text-[11px] text-cyan-200/60 italic">Haz clic en cualquier celda para editar sus datos.</span>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-cyan-500/30">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-950/90 text-cyan-200 border-b border-cyan-500/30 font-bold">
+                                <tr>
+                                    <th class="p-2 border border-cyan-500/30">BANCO</th>
+                                    <th class="p-2 border border-cyan-500/30">TIPO CRÉDITO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">MONTO CONTRATADO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">IMPORTE VIGENTE</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">%</th>
+                                    <th class="p-2 border border-cyan-500/30 w-36">DESTINO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-center w-16">PLAZO</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">FECHA OTORG.</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">VENCIMIENTO</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">TASA</th>
+                                    <th class="p-2 border border-cyan-500/30 w-36">GARANTÍAS Y AVALES</th>
+                                    <th class="p-2 border border-cyan-500/30 text-center w-12">ACCIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-cp" class="divide-y divide-cyan-500/20 text-slate-200">
+                                <tr><td colspan="12" class="p-3 text-center text-cyan-200/50">Sin créditos de corto plazo.</td></tr>
+                            </tbody>
+                            <tfoot class="bg-slate-900/90 font-bold text-cyan-200 border-t-2 border-cyan-500/50">
+                                <tr>
+                                    <td colspan="2" class="p-2">TOTAL CORTO PLAZO</td>
+                                    <td class="p-2 text-right" id="cp-tot-monto">$0</td>
+                                    <td class="p-2 text-right" id="cp-tot-saldo">$0</td>
+                                    <td class="p-2 text-right" id="cp-tot-pct">0.0%</td>
+                                    <td colspan="7"></td>
+                                </tr>
+                                
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- B) LARGO PLAZO -->
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="text-xs font-bold text-sky-400 uppercase flex items-center gap-1.5 tracking-wider">
+                            <span class="w-2 h-2 rounded-full bg-sky-400 inline-block"></span>
+                            B) LARGO PLAZO (Plazo &gt; 12 meses)
+                        </h3>
+                        <span class="text-[11px] text-cyan-200/60 italic">Amortización anual: suma de capital del 1er año ($0 si gracia &ge; 12 meses).</span>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-cyan-500/30">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-950/90 text-cyan-200 border-b border-cyan-500/30 font-bold">
+                                <tr>
+                                    <th class="p-2 border border-cyan-500/30">BANCO</th>
+                                    <th class="p-2 border border-cyan-500/30">TIPO CRÉDITO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">MONTO CONTRATADO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">SALDO VIGENTE</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right">%</th>
+                                    <th class="p-2 border border-cyan-500/30 w-36">DESTINO</th>
+                                    <th class="p-2 border border-cyan-500/30 text-center w-16">PLAZO</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">FECHA OTORG.</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">VENCIMIENTO</th>
+                                    <th class="p-2 border border-cyan-500/30 w-24">AFORO / GARANTÍA</th>
+                                    <th class="p-2 border border-cyan-500/30 text-right w-32">AMORTIZACIÓN ANUAL</th>
+                                    <th class="p-2 border border-cyan-500/30 w-36">GARANTÍAS Y AVALES</th>
+                                    <th class="p-2 border border-cyan-500/30 text-center w-12">ACCIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-lp" class="divide-y divide-cyan-500/20 text-slate-200">
+                                <tr><td colspan="13" class="p-3 text-center text-cyan-200/50">Sin créditos de largo plazo.</td></tr>
+                            </tbody>
+                            <tfoot class="bg-slate-900/90 font-bold text-cyan-200 border-t-2 border-cyan-500/50">
+                                <tr>
+                                    <td colspan="2" class="p-2">TOTAL LARGO PLAZO</td>
+                                    <td class="p-2 text-right" id="lp-tot-monto">$0</td>
+                                    <td class="p-2 text-right" id="lp-tot-saldo">$0</td>
+                                    <td class="p-2 text-right" id="lp-tot-pct">0.0%</td>
+                                    <td colspan="5"></td>
+                                    <td class="p-2 text-right text-emerald-400" id="lp-tot-amort">$0</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                                
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- RIESGO TOTAL BANCARIO -->
+                <div class="bg-slate-950/80 border border-cyan-400 text-white p-4 rounded-xl flex flex-col md:flex-row justify-between items-center font-bold text-sm shadow-md gap-2 mt-4">
+                    <span class="uppercase tracking-wider text-cyan-300">RIESGO TOTAL BANCARIO</span>
+                    <div class="flex flex-wrap gap-4 md:gap-6 text-xs md:text-sm">
+                        <span>Monto Contratado: <span id="riesgo-total-monto" class="text-sky-300 font-black">$0</span></span>
+                        <span class="text-slate-500 hidden md:inline">|</span>
+                        <span>Saldo Vigente: <span id="riesgo-total-saldo" class="text-emerald-400 font-black">$0</span></span>
+                    </div>
+                </div>
+
+                </section>
+        </div>
+
+        <!-- FORMULARIO PARA AÑADIR NUEVA OPERACIÓN -->
+        <section class="glass-card p-6 rounded-2xl mb-8 animate__animated animate__fadeIn">
+            <h2 class="text-base font-bold text-emerald-400 mb-4 flex items-center gap-2 uppercase tracking-wider">
+                <i class="fas fa-plus-circle"></i> AÑADIR NUEVO CRÉDITO BANCARIO AL CLIENTE
+            </h2>
+
+            <form id="form-nuevo-pasivo" onsubmit="guardarNuevoPasivo(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Clasificación del Plazo (*)</label>
+                        <select id="tipo_plazo" onchange="toggleCamposPlazo()" class="glass-input w-full p-2 rounded">
+                            <option value="CORTO_PLAZO">CORTO PLAZO (&le; 12 meses)</option>
+                            <option value="LARGO_PLAZO" selected>LARGO PLAZO (&gt; 12 meses)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Institución Bancaria (*)</label>
+                        <input type="text" id="banco" required placeholder="BBVA / HSBC / SANTANDER" class="glass-input w-full p-2 rounded uppercase">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Tipo de Crédito (*)</label>
+                        <input type="text" id="tipo_credito" required placeholder="Simple / Cuenta Corriente" class="glass-input w-full p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Monto Contratado ($) (*)</label>
+                        <input type="number" step="0.01" id="monto_contratado" required placeholder="50000" class="glass-input w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Saldo / Importe Vigente ($) (*)</label>
+                        <input type="number" step="0.01" id="saldo_vigente" required placeholder="50000" class="glass-input text-right w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Destino del Crédito</label>
+                        <input type="text" id="destino" placeholder="Capital de trabajo / Refinanciamiento" value="Capital de Trabajo" class="glass-input w-full p-2 rounded">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Plazo (Meses)</label>
+                        <input type="number" id="plazo" placeholder="60" value="60" class="glass-input w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Fecha de Otorgamiento</label>
+                        <input type="text" id="fecha_otorgamiento" placeholder="nov-26" class="glass-input w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Vencimiento del Contrato</label>
+                        <input type="text" id="vencimiento" placeholder="nov-31" class="glass-input w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label id="lbl-aforo" class="block font-semibold text-cyan-200/80 mb-1">Aforo / Garantía</label>
+                        <input type="text" id="tasa_aforo" placeholder="1.5 a 1.0 / Quirografaria" value="Tasa: 11.5%" class="glass-input w-full p-2 rounded">
+                    </div>
+                    <div id="campo-amortizacion">
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Amortización Anual ($)</label>
+                        <input type="number" step="0.01" id="amort_anual" placeholder="10000" class="glass-input w-full p-2 rounded font-mono">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-cyan-200/80 mb-1">Garantías y Avales</label>
+                        <input type="text" id="garantias" placeholder="Prenda sobre Inventarios / Quirografario" value="Quirografario" class="glass-input w-full p-2 rounded">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="submit" id="btn-guardar" class="btn-neon-blue font-bold text-xs px-6 py-2.5 rounded-xl shadow transition flex items-center gap-2 uppercase tracking-wider">
+                        <i class="fas fa-plus-circle"></i> AÑADIR A LA TABLA
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx3pY3IhLB7wi6-IUIK75df6SX1T0DhlVYqQzAAjTyeo5sjNsNYmU5ezoAuLcOw7JM/exec";
+
+        let pasivosCargados = {
+            cortoPlazo: [],
+            largoPlazo: []
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            toggleCamposPlazo();
+
+            const d = new Date();
+            const meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+            const fOtorg = meses[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+            const fVenc = meses[d.getMonth()] + '-' + String(d.getFullYear() + 5).slice(-2);
+            document.getElementById('fecha_otorgamiento').value = fOtorg;
+            document.getElementById('vencimiento').value = fVenc;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const noClienteParam = urlParams.get('no_cliente') || '';
+            const empresaParam = urlParams.get('empresa') || '';
+
+            if (noClienteParam) {
+                document.getElementById('no_cliente').value = noClienteParam;
+                if (empresaParam) {
+                    document.getElementById('empresa').value = empresaParam;
+                }
+                actualizarLabelsCliente(noClienteParam, empresaParam);
+            }
+
+            let creditosTransferidos = null;
+            try {
+                const datos = sessionStorage.getItem('creditos_transferencia') || localStorage.getItem('creditos_transferencia');
+                if (datos) {
+                    creditosTransferidos = JSON.parse(datos);
+                    if (!Array.isArray(creditosTransferidos)) {
+                        creditosTransferidos = [creditosTransferidos];
+                    }
+                }
+            } catch (e) {
+                console.error("Error al leer créditos de memoria:", e);
+            }
+
+            if (noClienteParam) {
+                document.getElementById('status-busqueda').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Consultando historial de créditos del cliente en la base de datos...';
+                
+                ejecutarAppsScript('buscarCliente', noClienteParam, function(res) {
+                    let pasivosBase = { cortoPlazo: [], largoPlazo: [] };
+                    
+                    if (res && res.exito && res.pasivos) {
+                        pasivosBase.cortoPlazo = res.pasivos.cortoPlazo || [];
+                        pasivosBase.largoPlazo = res.pasivos.largoPlazo || [];
+                    }
+
+                    const resultado = fusionarPasivos(pasivosBase, creditosTransferidos, noClienteParam);
+                    pasivosCargados = resultado.pasivos;
+
+                    renderTablasPasivos();
+                    habilitarBotonesExportacion(pasivosCargados.cortoPlazo.length > 0 || pasivosCargados.largoPlazo.length > 0);
+
+                    sessionStorage.removeItem('creditos_transferencia');
+                    localStorage.removeItem('creditos_transferencia');
+
+                    let msg = `<i class="fas fa-check-circle text-emerald-400"></i> Historial cargado (${resultado.existentesPrevios} créditos previos en base)`;
+                    if (resultado.agregados > 0) {
+                        msg += ` + se integró <b>${resultado.agregados}</b> nuevo crédito seleccionado.`;
+                    } else if (creditosTransferidos && creditosTransferidos.length > 0) {
+                        msg += ` (El crédito seleccionado ya se encontraba en la lista).`;
+                    }
+                    document.getElementById('status-busqueda').innerHTML = msg;
+
+                }, function(err) {
+                    console.warn('Fallo al consultar base de datos, usando memoria local:', err);
+                    if (creditosTransferidos && creditosTransferidos.length > 0) {
+                        const resultado = fusionarPasivos({ cortoPlazo: [], largoPlazo: [] }, creditosTransferidos, noClienteParam);
+                        pasivosCargados = resultado.pasivos;
+                        renderTablasPasivos();
+                        habilitarBotonesExportacion(true);
+                        document.getElementById('status-busqueda').innerHTML = '<i class="fas fa-exclamation-triangle text-amber-400"></i> Se cargó el crédito seleccionado (sin conexión a base de datos).';
+                    } else {
+                        document.getElementById('status-busqueda').innerHTML = '<i class="fas fa-info-circle text-amber-400"></i> Sin conexión con la base.';
+                    }
+                });
+
+            } else {
+                if (creditosTransferidos && creditosTransferidos.length > 0) {
+                    const resultado = fusionarPasivos({ cortoPlazo: [], largoPlazo: [] }, creditosTransferidos, null);
+                    pasivosCargados = resultado.pasivos;
+                    renderTablasPasivos();
+                    habilitarBotonesExportacion(true);
+                    document.getElementById('status-busqueda').innerHTML = '<i class="fas fa-check-circle text-emerald-400"></i> Crédito cargado en memoria.';
+                } else {
+                    document.getElementById('status-busqueda').innerHTML = '<i class="fas fa-info-circle text-sky-400"></i> Ingrese un cliente desde Amortización Consolidada o agregue una nueva operación abajo.';
+                }
+            }
+        });
+
+        function formatearCreditoNuevo(cr) {
+            let partes = String(cr.fechaInicio || '2026-08-01').split('-');
+            let y = parseInt(partes[0]) || 2026;
+            let m = (parseInt(partes[1]) || 8) - 1;
+            let d = parseInt(partes[2]) || 1;
+            let fInicio = new Date(y, m, d);
+
+            let plazoAnosNum = parseFloat(cr.plazoAnos) || 1;
+            let totalMeses = Math.round(plazoAnosNum * 12);
+            let fVenc = new Date(y + Math.floor(plazoAnosNum), m + Math.round((plazoAnosNum % 1) * 12), d);
+            
+            let fInicioStr = `${fInicio.getFullYear()}-${String(fInicio.getMonth()+1).padStart(2,'0')}-${String(fInicio.getDate()).padStart(2,'0')}`;
+            let fVencStr = `${fVenc.getFullYear()}-${String(fVenc.getMonth()+1).padStart(2,'0')}-${String(fVenc.getDate()).padStart(2,'0')}`;
+
+            let tipoCred = (cr.tipoAmortizacion || '').toUpperCase() === 'LINEAL' ? 'Simple' : 'Corriente';
+            let amortizacionPrimerAno = calcularAmortizacionPrimerAno(cr);
+
+            return {
+                idVirtual: cr.idCredito || cr.idVirtual || ("OP-" + Math.random().toString(36).substr(2, 9)),
+                banco: cr.banco || 'BBVA',
+                tipoCredito: tipoCred,
+                montoContratado: Number(cr.monto || cr.montoContratado) || 0,
+                saldoVigente: Number(cr.saldoVigente || cr.monto) || 0,
+                destino: cr.destino || 'Capital de Trabajo',
+                plazo: totalMeses || Number(cr.plazo) || 12,
+                fechaOtorgamiento: fInicioStr,
+                vencimiento: fVencStr,
+                tasaAforo: cr.tasaAnual ? `Tasa: ${cr.tasaAnual}%` : (cr.tasaAforo || 'ND'),
+                amortAnual: amortizacionPrimerAno,
+                garantias: cr.garantias || 'Quirografario'
+            };
+        }
+
+        function existeEnLista(lista, nuevo) {
+            return lista.some(p => {
+                if (nuevo.idVirtual && p.idVirtual && nuevo.idVirtual === p.idVirtual) return true;
+                const mismoBanco = String(p.banco || '').trim().toUpperCase() === String(nuevo.banco || '').trim().toUpperCase();
+                const mismoMonto = Math.abs((Number(p.montoContratado) || 0) - (Number(nuevo.montoContratado) || 0)) < 1;
+                const mismoPlazo = Number(p.plazo) === Number(nuevo.plazo);
+                return mismoBanco && mismoMonto && mismoPlazo;
+            });
+        }
+
+        function fusionarPasivos(pasivosExistentes, nuevosRaw, noClienteObjetivo) {
+            let cp = [...(pasivosExistentes.cortoPlazo || [])];
+            let lp = [...(pasivosExistentes.largoPlazo || [])];
+            let agregadosCount = 0;
+
+            let creditosAProcesar = nuevosRaw || [];
+            if (noClienteObjetivo && Array.isArray(creditosAProcesar)) {
+                const filtrados = creditosAProcesar.filter(c => !c.noCliente || String(c.noCliente).trim() === String(noClienteObjetivo).trim());
+                if (filtrados.length > 0) creditosAProcesar = filtrados;
+            }
+
+            creditosAProcesar.forEach(cr => {
+                const pasivo = formatearCreditoNuevo(cr);
+                const yaExiste = existeEnLista(cp, pasivo) || existeEnLista(lp, pasivo);
+
+                if (!yaExiste) {
+                    if (pasivo.plazo <= 12) {
+                        cp.push(pasivo);
+                    } else {
+                        lp.push(pasivo);
+                    }
+                    agregadosCount++;
+                }
+            });
+
+            return {
+                pasivos: { cortoPlazo: cp, largoPlazo: lp },
+                agregados: agregadosCount,
+                existentesPrevios: (pasivosExistentes.cortoPlazo || []).length + (pasivosExistentes.largoPlazo || []).length
+            };
+        }
+
+        function toggleCamposPlazo() {
+            const plazoVal = document.getElementById('tipo_plazo').value;
+            const lblAforo = document.getElementById('lbl-aforo');
+            const tasaAforoInput = document.getElementById('tasa_aforo');
+            const campoAmort = document.getElementById('campo-amortizacion');
+
+            if (plazoVal === 'LARGO_PLAZO') {
+                lblAforo.innerText = 'Aforo / Garantía';
+                tasaAforoInput.placeholder = '1.5 a 1.0 / Quirografaria';
+                campoAmort.classList.remove('hidden');
+            } else {
+                lblAforo.innerText = 'Tasa de Interés';
+                tasaAforoInput.placeholder = 'ND / TIIE + 2.5%';
+                campoAmort.classList.add('hidden');
+            }
+        }
+
+        function fmtMoney(amount) {
+            return '$' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(amount || 0);
+        }
+
+        function fmtFechaLimpia(val) {
+            if (!val) return '';
+            var str = String(val).trim();
+            var partes = str.split('-');
+            if (partes.length >= 3) {
+                var d = new Date(partes[0], partes[1]-1, partes[2]);
+                if (!isNaN(d.getTime())) {
+                    var meses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+                    return meses[d.getMonth()] + '-' + String(d.getFullYear()).slice(-2);
+                }
+            }
+            return str;
+        }
+
+        function calcularAmortizacionPrimerAno(cr) {
+            const monto = Number(cr.monto || cr.montoContratado) || 0;
+            const plazoAnos = Number(cr.plazoAnos) || (Number(cr.plazo) / 12) || 1;
+            const plazoAmortMeses = Math.max(1, Number(cr.periodoMeses) || 1);
+            const graciaMeses = Number(cr.graciaMeses) || 0;
+            const balloonPct = (Number(cr.balloonPct) || 0) / 100;
+
+            if (graciaMeses >= 12) {
+                return 0;
+            }
+
+            const totalMeses = Math.round(plazoAnos * 12);
+            const totalPeriodosAmort = Math.round(totalMeses / plazoAmortMeses);
+            const periodosGraciaAmort = Math.floor(graciaMeses / plazoAmortMeses);
+            const periodosAmortActivos = Math.max(1, totalPeriodosAmort - periodosGraciaAmort);
+
+            const esLineal = (cr.tipoAmortizacion || 'LINEAL').toUpperCase() === 'LINEAL';
+            const amortBaseLineal = (1 - balloonPct) / periodosAmortActivos;
+            const periodosAmortPorAno = Math.max(1, Math.round(12 / plazoAmortMeses));
+
+            let sumaAmortAno1 = 0;
+            let saldoActual = monto;
+            const mesesPrimerAno = Math.min(12, totalMeses);
+
+            for (let m = 1; m <= mesesPrimerAno; m++) {
+                const anoP = 1;
+                const tocaAmortizacion = (m % plazoAmortMeses === 0) || (m === totalMeses);
+                const numPeriodoAmortActual = Math.ceil(m / plazoAmortMeses);
+                const superoGracia = numPeriodoAmortActual > periodosGraciaAmort;
+
+                let amortEfectiva = 0;
+                if (tocaAmortizacion && superoGracia && saldoActual > 0) {
+                    let pctAmort = 0;
+                    if (esLineal) {
+                        pctAmort = (m === totalMeses) ? (amortBaseLineal + balloonPct) : amortBaseLineal;
+                    } else {
+                        const mapaPct = cr.esquemaCreciente || {};
+                        const pctAnual = (mapaPct[anoP] !== undefined ? Number(mapaPct[anoP]) : (100 / plazoAnos)) / 100;
+                        const pctBasePeriodo = pctAnual / periodosAmortPorAno;
+                        pctAmort = (m === totalMeses) ? (pctBasePeriodo + balloonPct) : pctBasePeriodo;
+                    }
+                    const montoAmortTeorico = monto * pctAmort;
+                    amortEfectiva = Math.min(montoAmortTeorico, saldoActual);
+                }
+
+                saldoActual -= amortEfectiva;
+                sumaAmortAno1 += amortEfectiva;
+            }
+
+            return Math.round(sumaAmortAno1);
+        }
+
+        function actualizarLabelsCliente(noCliente, nombreEmpresa) {
+            document.getElementById('lbl-empresa-nombre').innerText = nombreEmpresa ? nombreEmpresa.toUpperCase() : 'NO SELECCIONADO';
+            document.getElementById('lbl-cliente-num').innerText = noCliente || '----';
+        }
+
+        function habilitarBotonesExportacion(habilitar) {
+            const btnExcel = document.getElementById('btn-descargar-excel');
+            if (habilitar) {
+                btnExcel.disabled = false;
+                btnExcel.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                btnExcel.disabled = true;
+                btnExcel.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        function actualizarDato(tipoPlazo, index, campo, valor) {
+            const lista = (tipoPlazo === 'CP') ? pasivosCargados.cortoPlazo : pasivosCargados.largoPlazo;
+            if (lista && lista[index]) {
+                if (['montoContratado', 'saldoVigente', 'amortAnual', 'plazo'].includes(campo)) {
+                    lista[index][campo] = Number(valor) || 0;
+                } else {
+                    lista[index][campo] = valor;
+                }
+            }
+            recalcularTotalesVisuales();
+        }
+
+        function obtenerMetricasCalculadas() {
+            let totMontoCP = 0, totSaldoCP = 0;
+            let totMontoLP = 0, totSaldoLP = 0, totAmortLP = 0;
+            let bbvaMontoCP = 0, bbvaSaldoCP = 0, otrosMontoCP = 0, otrosSaldoCP = 0;
+            let bbvaMontoLP = 0, bbvaSaldoLP = 0, bbvaAmortLP = 0;
+            let otrosMontoLP = 0, otrosSaldoLP = 0, otrosAmortLP = 0;
+
+            pasivosCargados.cortoPlazo.forEach(item => {
+                let monto = Number(item.montoContratado) || 0;
+                let saldo = Number(item.saldoVigente) || 0;
+                totMontoCP += monto;
+                totSaldoCP += saldo;
+
+                if (String(item.banco || '').toUpperCase().includes('BBVA')) {
+                    bbvaMontoCP += monto;
+                    bbvaSaldoCP += saldo;
+                } else {
+                    otrosMontoCP += monto;
+                    otrosSaldoCP += saldo;
+                }
+            });
+
+            pasivosCargados.largoPlazo.forEach(item => {
+                let monto = Number(item.montoContratado) || 0;
+                let saldo = Number(item.saldoVigente) || 0;
+                let amort = Number(item.amortAnual) || 0;
+                totMontoLP += monto;
+                totSaldoLP += saldo;
+                totAmortLP += amort;
+
+                if (String(item.banco || '').toUpperCase().includes('BBVA')) {
+                    bbvaMontoLP += monto;
+                    bbvaSaldoLP += saldo;
+                    bbvaAmortLP += amort;
+                } else {
+                    otrosMontoLP += monto;
+                    otrosSaldoLP += saldo;
+                    otrosAmortLP += amort;
+                }
+            });
+
+            const riesgoTotalMonto = totMontoCP + totMontoLP;
+            const riesgoTotalSaldo = totSaldoCP + totSaldoLP;
+            const bbvaTotalMonto = bbvaMontoCP + bbvaMontoLP;
+            const bbvaTotalSaldo = bbvaSaldoCP + bbvaSaldoLP;
+            const otrosTotalMonto = otrosMontoCP + otrosMontoLP;
+            const otrosTotalSaldo = otrosSaldoCP + otrosSaldoLP;
+
+            return {
+                totMontoCP, totSaldoCP,
+                bbvaMontoCP, bbvaSaldoCP, otrosMontoCP, otrosSaldoCP,
+                totMontoLP, totSaldoLP, totAmortLP,
+                bbvaMontoLP, bbvaSaldoLP, bbvaAmortLP,
+                otrosMontoLP, otrosSaldoLP, otrosAmortLP,
+                riesgoTotalMonto, riesgoTotalSaldo,
+                bbvaTotalMonto, bbvaTotalSaldo,
+                otrosTotalMonto, otrosTotalSaldo
+            };
+        }
+
+        function recalcularTotalesVisuales() {
+            const m = obtenerMetricasCalculadas();
+
+            pasivosCargados.cortoPlazo.forEach((item, idx) => {
+                const tdPct = document.getElementById(`pct-cp-${idx}`);
+                if (tdPct) tdPct.innerText = m.riesgoTotalSaldo > 0 ? ((item.saldoVigente / m.riesgoTotalSaldo) * 100).toFixed(1) + '%' : '0.0%';
+            });
+
+            pasivosCargados.largoPlazo.forEach((item, idx) => {
+                const tdPct = document.getElementById(`pct-lp-${idx}`);
+                if (tdPct) tdPct.innerText = m.riesgoTotalSaldo > 0 ? ((item.saldoVigente / m.riesgoTotalSaldo) * 100).toFixed(1) + '%' : '0.0%';
+            });
+
+            // CP Totales
+            document.getElementById('cp-tot-monto').innerText = fmtMoney(m.totMontoCP);
+            document.getElementById('cp-tot-saldo').innerText = fmtMoney(m.totSaldoCP);
+            document.getElementById('cp-tot-pct').innerText = m.riesgoTotalSaldo > 0 ? ((m.totSaldoCP / m.riesgoTotalSaldo) * 100).toFixed(1) + '%' : '0.0%';
+            
+            
+            
+            
+            
+            
+
+            // LP Totales
+            document.getElementById('lp-tot-monto').innerText = fmtMoney(m.totMontoLP);
+            document.getElementById('lp-tot-saldo').innerText = fmtMoney(m.totSaldoLP);
+            document.getElementById('lp-tot-pct').innerText = m.riesgoTotalSaldo > 0 ? ((m.totSaldoLP / m.riesgoTotalSaldo) * 100).toFixed(1) + '%' : '0.0%';
+            document.getElementById('lp-tot-amort').innerText = fmtMoney(m.totAmortLP);
+            
+            
+            
+            
+            
+            
+            
+            
+
+            document.getElementById('riesgo-total-monto').innerText = fmtMoney(m.riesgoTotalMonto);
+            document.getElementById('riesgo-total-saldo').innerText = fmtMoney(m.riesgoTotalSaldo);
+
+            
+        }
+
+        function eliminarCredito(tipoPlazo, index) {
+            const nombreCred = (tipoPlazo === 'CP') ? pasivosCargados.cortoPlazo[index].banco : pasivosCargados.largoPlazo[index].banco;
+            Swal.fire({
+                title: '¿Quitar este crédito?',
+                text: 'Se retirará ' + nombreCred + ' de la tabla.',
+                icon: 'warning',
+                showCancelButton: true,
+                background: '#030b1e',
+                color: '#fff',
+                confirmButtonColor: '#b91c1c',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: 'Sí, quitar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    if (tipoPlazo === 'CP') pasivosCargados.cortoPlazo.splice(index, 1);
+                    else pasivosCargados.largoPlazo.splice(index, 1);
+                    renderTablasPasivos();
+                    habilitarBotonesExportacion(pasivosCargados.cortoPlazo.length > 0 || pasivosCargados.largoPlazo.length > 0);
+                    Swal.fire({ title: 'Eliminado', icon: 'success', timer: 1300, showConfirmButton: false, background: '#030b1e', color: '#fff' });
+                }
+            });
+        }
+
+        function renderTablasPasivos() {
+            const tbodyCP = document.getElementById('tbody-cp');
+            const tbodyLP = document.getElementById('tbody-lp');
+
+            tbodyCP.innerHTML = ''; tbodyLP.innerHTML = '';
+            const cpList = pasivosCargados.cortoPlazo;
+            const lpList = pasivosCargados.largoPlazo;
+
+            const celdaTexto = (tipo, index, campo, valor, placeholder) => `
+                <td class="p-1 border editable-cell-highlight" onclick="event.stopPropagation();">
+                    <input type="text" value="${valor || ''}" placeholder="${placeholder}" class="cell-input p-1" onchange="actualizarDato('${tipo}', ${index}, '${campo}', this.value)">
+                </td>`;
+            
+            const celdaNumero = (tipo, index, campo, valor) => `
+                <td class="p-1 border text-right editable-cell-highlight" onclick="event.stopPropagation();">
+                    <input type="number" step="0.01" value="${Number(valor) || 0}" class="cell-input text-right p-1 font-mono" onchange="actualizarDato('${tipo}', ${index}, '${campo}', this.value)">
+                </td>`;
+
+            if (cpList.length === 0) {
+                tbodyCP.innerHTML = '<tr><td colspan="12" class="p-3 text-center text-cyan-200/50">Sin créditos de corto plazo.</td></tr>';
+            } else {
+                cpList.forEach((item, idx) => {
+                    tbodyCP.innerHTML += `<tr>
+                        ${celdaTexto('CP', idx, 'banco', item.banco, "Banco")}
+                        ${celdaTexto('CP', idx, 'tipoCredito', item.tipoCredito, "Tipo Crédito")}
+                        ${celdaNumero('CP', idx, 'montoContratado', item.montoContratado)}
+                        ${celdaNumero('CP', idx, 'saldoVigente', item.saldoVigente)}
+                        <td id="pct-cp-${idx}" class="p-2 border text-right font-semibold font-mono text-cyan-300">0.0%</td>
+                        ${celdaTexto('CP', idx, 'destino', item.destino, "Destino")}
+                        ${celdaNumero('CP', idx, 'plazo', item.plazo)}
+                        ${celdaTexto('CP', idx, 'fechaOtorgamiento', fmtFechaLimpia(item.fechaOtorgamiento), "dd-mm-aa")}
+                        ${celdaTexto('CP', idx, 'vencimiento', fmtFechaLimpia(item.vencimiento), "dd-mm-aa")}
+                        ${celdaTexto('CP', idx, 'tasaAforo', item.tasaAforo, "Tasa")}
+                        ${celdaTexto('CP', idx, 'garantias', item.garantias, "Garantía")}
+                        <td class="p-2 border text-center">
+                            <button onclick="eliminarCredito('CP', ${idx})" title="Quitar crédito" class="text-red-400 hover:text-red-300 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            if (lpList.length === 0) {
+                tbodyLP.innerHTML = '<tr><td colspan="13" class="p-3 text-center text-cyan-200/50">Sin créditos de largo plazo.</td></tr>';
+            } else {
+                lpList.forEach((item, idx) => {
+                    tbodyLP.innerHTML += `<tr>
+                        ${celdaTexto('LP', idx, 'banco', item.banco, "Banco")}
+                        ${celdaTexto('LP', idx, 'tipoCredito', item.tipoCredito, "Tipo Crédito")}
+                        ${celdaNumero('LP', idx, 'montoContratado', item.montoContratado)}
+                        ${celdaNumero('LP', idx, 'saldoVigente', item.saldoVigente)}
+                        <td id="pct-lp-${idx}" class="p-2 border text-right font-semibold font-mono text-cyan-300">0.0%</td>
+                        ${celdaTexto('LP', idx, 'destino', item.destino, "Destino")}
+                        ${celdaNumero('LP', idx, 'plazo', item.plazo)}
+                        ${celdaTexto('LP', idx, 'fechaOtorgamiento', fmtFechaLimpia(item.fechaOtorgamiento), "dd-mm-aa")}
+                        ${celdaTexto('LP', idx, 'vencimiento', fmtFechaLimpia(item.vencimiento), "dd-mm-aa")}
+                        ${celdaTexto('LP', idx, 'tasaAforo', item.tasaAforo, "Aforo")}
+                        ${celdaNumero('LP', idx, 'amortAnual', item.amortAnual)}
+                        ${celdaTexto('LP', idx, 'garantias', item.garantias, "Garantía")}
+                        <td class="p-2 border text-center">
+                            <button onclick="eliminarCredito('LP', ${idx})" title="Quitar crédito" class="text-red-400 hover:text-red-300 transition">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            recalcularTotalesVisuales();
+        }
+
+        
+
+        function guardarNuevoPasivo(event) {
+            event.preventDefault();
+            const tipoPlazo = document.getElementById('tipo_plazo').value;
+            const banco = document.getElementById('banco').value.trim();
+            const tipoCredito = document.getElementById('tipo_credito').value.trim();
+            const montoContratado = parseFloat(document.getElementById('monto_contratado').value) || 0;
+            const saldoVigente = parseFloat(document.getElementById('saldo_vigente').value) || 0;
+
+            if (!banco || !tipoCredito || montoContratado <= 0) {
+                Swal.fire('Atención', 'Complete Institución, Tipo de Crédito y Monto.', 'warning');
+                return;
+            }
+
+            const nuevaOperacion = {
+                idVirtual: "OP-" + Date.now(),
+                banco: banco.toUpperCase(),
+                tipoCredito: tipoCredito,
+                montoContratado: montoContratado,
+                saldoVigente: saldoVigente > 0 ? saldoVigente : montoContratado,
+                destino: document.getElementById('destino').value.trim() || 'Capital de Trabajo',
+                plazo: parseInt(document.getElementById('plazo').value) || 12,
+                fechaOtorgamiento: document.getElementById('fecha_otorgamiento').value.trim() || 'nov-26',
+                vencimiento: document.getElementById('vencimiento').value.trim() || 'nov-31',
+                tasaAforo: document.getElementById('tasa_aforo').value.trim() || 'ND',
+                amortAnual: (tipoPlazo === 'LARGO_PLAZO') ? parseFloat(document.getElementById('amort_anual').value) || 0 : 0,
+                garantias: document.getElementById('garantias').value.trim() || 'Quirografario'
+            };
+
+            (tipoPlazo === 'CORTO_PLAZO') ? pasivosCargados.cortoPlazo.push(nuevaOperacion) : pasivosCargados.largoPlazo.push(nuevaOperacion);
+
+            renderTablasPasivos();
+            habilitarBotonesExportacion(true);
+
+            ['banco','tipo_credito','monto_contratado','saldo_vigente','amort_anual'].forEach(id => document.getElementById(id).value = '');
+
+            Swal.fire({
+                title: '¡Operación Agregada!',
+                text: 'Recuerda hacer clic en "SINCRONIZAR A GOOGLE SHEETS" para guardar.',
+                icon: 'success',
+                background: '#030b1e',
+                color: '#fff',
+                confirmButtonColor: '#00d4ff'
+            });
+        }
+
+        function ejecutarAppsScript(fnName, param, callbackExito, callbackError) {
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run.withSuccessHandler(callbackExito).withFailureHandler(callbackError)[fnName](param);
+                return;
+            }
+            const callbackName = 'gas_cb_' + Math.round(Math.random() * 1000000);
+            window[callbackName] = function(res) {
+                delete window[callbackName];
+                const scriptEl = document.getElementById(callbackName);
+                if (scriptEl) scriptEl.remove();
+                (res && res.exito !== false) ? (callbackExito && callbackExito(res)) : (callbackError && callbackError({ message: res ? res.mensaje : "Error desconocido" }));
+            };
+            const script = document.createElement('script');
+            script.id = callbackName;
+            script.src = `${WEB_APP_URL}?action=${fnName}&callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(param))}`;
+            script.onerror = function() {
+                delete window[callbackName];
+                if (document.getElementById(callbackName)) document.getElementById(callbackName).remove();
+                if (callbackError) callbackError({ message: "Fallo conexión Sheets." });
+            };
+            document.body.appendChild(script);
+        }
+
+        function sincronizarDatosConsolidados() {
+            const noCliente = document.getElementById('no_cliente').value.trim();
+            const empresa = document.getElementById('empresa').value.trim();
+            const grupo = document.getElementById('grupo').value.trim();
+
+            if (!noCliente || !empresa) return Swal.fire('Atención', 'Faltan datos del cliente.', 'warning');
+            if (pasivosCargados.cortoPlazo.length === 0 && pasivosCargados.largoPlazo.length === 0) return Swal.fire('Atención', 'No hay pasivos para sincronizar.', 'info');
+
+            Swal.fire({
+                title: 'Sincronizando con Google Sheets...',
+                text: 'Guardando toda la información en la pestaña del cliente, por favor espere.',
+                allowOutsideClick: false,
+                background: '#030b1e',
+                color: '#fff',
+                didOpen: () => Swal.showLoading()
+            });
+
+            ejecutarAppsScript('sincronizarPasivosMasivo', {
+                noCliente: noCliente,
+                nombreEmpresa: empresa,
+                grupo: grupo,
+                pasivosCortoPlazo: pasivosCargados.cortoPlazo,
+                pasivosLargoPlazo: pasivosCargados.largoPlazo
+            }, function(res) {
+                Swal.fire({
+                    title: '¡Sincronización Exitosa!',
+                    text: `Se ha guardado el cuadro de pasivos en la pestaña "${noCliente}" de tu Google Sheets.`,
+                    icon: 'success',
+                    background: '#030b1e',
+                    color: '#fff',
+                    confirmButtonColor: '#00d4ff'
+                });
+            }, function(err) {
+                let pasivosTotales = [];
+                pasivosCargados.cortoPlazo.forEach(p => { pasivosTotales.push({ ...p, tipoPlazo: 'CORTO_PLAZO' }); });
+                pasivosCargados.largoPlazo.forEach(p => { pasivosTotales.push({ ...p, tipoPlazo: 'LARGO_PLAZO' }); });
+
+                ejecutarAppsScript('registrarCliente', { noCliente: noCliente, nombreEmpresa: empresa, grupo: grupo }, function() {
+                    let procesados = 0;
+                    function enviarUnoAUno() {
+                        if (procesados >= pasivosTotales.length) {
+                            Swal.fire({
+                                title: '¡Sincronización Exitosa!',
+                                text: `Se registraron los ${pasivosTotales.length} créditos en Google Sheets.`,
+                                icon: 'success',
+                                background: '#030b1e',
+                                color: '#fff',
+                                confirmButtonColor: '#00d4ff'
+                            });
+                            return;
+                        }
+                        const p = pasivosTotales[procesados];
+                        const req = {
+                            noCliente: noCliente,
+                            nombreEmpresa: empresa,
+                            grupo: grupo,
+                            tipoPlazo: p.tipoPlazo,
+                            banco: p.banco,
+                            tipoCredito: p.tipoCredito,
+                            montoContratado: p.montoContratado,
+                            saldoVigente: p.saldoVigente,
+                            destino: p.destino,
+                            plazo: p.plazo,
+                            fechaOtorgamiento: p.fechaOtorgamiento,
+                            vencimiento: p.vencimiento,
+                            tasaAforo: p.tasaAforo,
+                            amortAnual: p.amortAnual || 0,
+                            garantias: p.garantias
+                        };
+                        ejecutarAppsScript('guardarPasivo', req, function() {
+                            procesados++;
+                            enviarUnoAUno();
+                        }, function() {
+                            procesados++;
+                            enviarUnoAUno();
+                        });
+                    }
+                    enviarUnoAUno();
+                }, function(errReg) {
+                    Swal.fire('Error', 'No fue posible guardar en Sheets: ' + (errReg.message || err.message), 'error');
+                });
+            });
+        }
+
+        // GENERACIÓN DIRECTA DE EXCEL CON TABLAS, DESGLOSE BBVA / OTROS BANCOS Y ANÁLISIS
+        async function descargarExcelJS() {
+            if (pasivosCargados.cortoPlazo.length === 0 && pasivosCargados.largoPlazo.length === 0) {
+                return Swal.fire('Atención', 'No hay pasivos registrados para exportar.', 'warning');
+            }
+
+            const noCliente = document.getElementById('no_cliente').value.trim() || 'SIN_NUMERO';
+            const empresa = document.getElementById('empresa').value.trim() || 'NO SELECCIONADO';
+            const grupo = document.getElementById('grupo').value.trim() || 'N/A';
+            const fechaEmision = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+            const m = obtenerMetricasCalculadas();
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = 'BBVA Pasivos Bancarios';
+            workbook.created = new Date();
+
+            const ws = workbook.addWorksheet('Pasivos Bancarios', {
+                views: [{ showGridLines: true }]
+            });
+
+            ws.columns = [
+                { width: 18 }, // A: BANCO
+                { width: 22 }, // B: TIPO CRÉDITO
+                { width: 20 }, // C: MONTO CONTRATADO
+                { width: 20 }, // D: SALDO / IMPORTE VIGENTE
+                { width: 11 }, // E: %
+                { width: 26 }, // F: DESTINO
+                { width: 13 }, // G: PLAZO
+                { width: 15 }, // H: FECHA OTORG.
+                { width: 15 }, // I: VENCIMIENTO
+                { width: 20 }, // J: TASA / AFORO
+                { width: 22 }, // K: AMORTIZACIÓN ANUAL / GARANTÍAS
+                { width: 28 }  // L: GARANTÍAS Y AVALES
+            ];
+
+            const borderThin = {
+                top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+            };
+
+            const borderTotal = {
+                top: { style: 'thin', color: { argb: 'FF072146' } },
+                bottom: { style: 'medium', color: { argb: 'FF072146' } },
+                left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+            };
+
+            const currencyFmt = '$#,##0';
+            const percentFmt = '0.0%';
+
+            // ENCABEZADO CORPORATIVO
+            ws.mergeCells('A1:L1');
+            const titleCell = ws.getCell('A1');
+            titleCell.value = 'CARACTERÍSTICAS DE LOS PASIVOS BANCARIOS CONTRATADOS VIGENTES';
+            titleCell.font = { name: 'Segoe UI', size: 13, bold: true, color: { argb: 'FFFFFFFF' } };
+            titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF072146' } };
+            titleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            ws.getRow(1).height = 28;
+
+            ws.mergeCells('A2:L2');
+            const subTitleCell = ws.getCell('A2');
+            subTitleCell.value = `CLIENTE: ${empresa.toUpperCase()}   |   NO. CLIENTE: ${noCliente}   |   GRUPO: ${grupo.toUpperCase()}   |   FECHA: ${fechaEmision}`;
+            subTitleCell.font = { name: 'Segoe UI', size: 10, bold: true, color: { argb: 'FF072146' } };
+            subTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFEBF8FF' } };
+            subTitleCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+            ws.getRow(2).height = 22;
+
+            ws.addRow([]);
+
+            // =========================================================
+            // A) TABLA CORTO PLAZO
+            // =========================================================
+            const secCPRow = ws.addRow(['A) CORTO PLAZO (Plazo <= 12 meses)']);
+            secCPRow.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF047857' } };
+            secCPRow.height = 22;
+
+            const headersCP = ['BANCO', 'TIPO CRÉDITO', 'MONTO CONTRATADO', 'IMPORTE VIGENTE', '% PART.', 'DESTINO', 'PLAZO (MESES)', 'FECHA OTORG.', 'VENCIMIENTO', 'TASA', 'GARANTÍAS Y AVALES'];
+            const headerRowCP = ws.addRow(headersCP);
+            headerRowCP.height = 24;
+            headerRowCP.eachCell((cell, colNumber) => {
+                cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF065F46' } };
+                cell.border = borderThin;
+                cell.alignment = {
+                    vertical: 'middle',
+                    horizontal: (colNumber >= 3 && colNumber <= 5) ? 'right' : (colNumber === 7 ? 'center' : 'left')
+                };
+            });
+
+            if (pasivosCargados.cortoPlazo.length === 0) {
+                const emptyCP = ws.addRow(['Sin créditos de corto plazo registrados.']);
+                ws.mergeCells(`A${emptyCP.number}:K${emptyCP.number}`);
+                emptyCP.getCell(1).font = { italic: true, color: { argb: 'FF64748B' } };
+            } else {
+                pasivosCargados.cortoPlazo.forEach((item, idx) => {
+                    const pct = m.riesgoTotalSaldo > 0 ? (Number(item.saldoVigente) || 0) / m.riesgoTotalSaldo : 0;
+                    const r = ws.addRow([
+                        String(item.banco || '').toUpperCase(),
+                        item.tipoCredito || '',
+                        Number(item.montoContratado) || 0,
+                        Number(item.saldoVigente) || 0,
+                        pct,
+                        item.destino || '',
+                        Number(item.plazo) || 0,
+                        fmtFechaLimpia(item.fechaOtorgamiento),
+                        fmtFechaLimpia(item.vencimiento),
+                        item.tasaAforo || '',
+                        item.garantias || ''
+                    ]);
+                    r.height = 20;
+                    r.eachCell((cell, col) => {
+                        cell.font = { name: 'Segoe UI', size: 9, color: { argb: 'FF0F172A' }, bold: col === 1 };
+                        cell.border = borderThin;
+                        if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                        if (col === 3 || col === 4) { cell.numFmt = currencyFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                        else if (col === 5) { cell.numFmt = percentFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                        else if (col === 7) { cell.alignment = { horizontal: 'center', vertical: 'middle' }; }
+                        else { cell.alignment = { horizontal: 'left', vertical: 'middle' }; }
+                    });
+                });
+            }
+
+            // Totales Corto Plazo + Desglose BBVA / Otros Bancos
+            const addFooterCP = (label, monto, saldo, pct, bgArgb, textArgb, isMainTotal) => {
+                const r = ws.addRow([label, '', monto, saldo, pct, '', '', '', '', '', '']);
+                ws.mergeCells(`A${r.number}:B${r.number}`);
+                r.height = 21;
+                r.eachCell((cell, col) => {
+                    cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: textArgb } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgArgb } };
+                    cell.border = isMainTotal ? borderTotal : borderThin;
+                    if (col === 3 || col === 4) { cell.numFmt = currencyFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else if (col === 5) { cell.numFmt = percentFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else { cell.alignment = { horizontal: isMainTotal ? 'left' : 'right', vertical: 'middle' }; }
+                });
+            };
+
+            addFooterCP(
+                'TOTAL CORTO PLAZO',
+                m.totMontoCP,
+                m.totSaldoCP,
+                m.riesgoTotalSaldo > 0 ? m.totSaldoCP / m.riesgoTotalSaldo : 0,
+                'FFE2E8F0', 'FF072146', true
+            );
+            let bancosCP = {};
+            pasivosCargados.cortoPlazo.forEach(p => {
+                let b = String(p.banco || 'OTRO').toUpperCase();
+                if(!bancosCP[b]) bancosCP[b] = {monto: 0, saldo: 0};
+                bancosCP[b].monto += Number(p.montoContratado) || 0;
+                bancosCP[b].saldo += Number(p.saldoVigente) || 0;
+            });
+            for(let b in bancosCP) {
+                addFooterCP(`↳ Total ${b} (Corto Plazo)`, bancosCP[b].monto, bancosCP[b].saldo, m.riesgoTotalSaldo > 0 ? bancosCP[b].saldo / m.riesgoTotalSaldo : 0, 'FFF1F5F9', 'FF334155', false);
+            }
+
+            ws.addRow([]);
+
+            // =========================================================
+            // B) TABLA LARGO PLAZO
+            // =========================================================
+            const secLPRow = ws.addRow(['B) LARGO PLAZO (Plazo > 12 meses)']);
+            secLPRow.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF072146' } };
+            secLPRow.height = 22;
+
+            const headersLP = ['BANCO', 'TIPO CRÉDITO', 'MONTO CONTRATADO', 'SALDO VIGENTE', '% PART.', 'DESTINO', 'PLAZO (MESES)', 'FECHA OTORG.', 'VENCIMIENTO', 'AFORO / GARANTÍA', 'AMORTIZACIÓN ANUAL', 'GARANTÍAS Y AVALES'];
+            const headerRowLP = ws.addRow(headersLP);
+            headerRowLP.height = 24;
+            headerRowLP.eachCell((cell, colNumber) => {
+                cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF072146' } };
+                cell.border = borderThin;
+                cell.alignment = {
+                    vertical: 'middle',
+                    horizontal: ((colNumber >= 3 && colNumber <= 5) || colNumber === 11) ? 'right' : (colNumber === 7 ? 'center' : 'left')
+                };
+            });
+
+            if (pasivosCargados.largoPlazo.length === 0) {
+                const emptyLP = ws.addRow(['Sin créditos de largo plazo registrados.']);
+                ws.mergeCells(`A${emptyLP.number}:L${emptyLP.number}`);
+                emptyLP.getCell(1).font = { italic: true, color: { argb: 'FF64748B' } };
+            } else {
+                pasivosCargados.largoPlazo.forEach((item, idx) => {
+                    const pct = m.riesgoTotalSaldo > 0 ? (Number(item.saldoVigente) || 0) / m.riesgoTotalSaldo : 0;
+                    const r = ws.addRow([
+                        String(item.banco || '').toUpperCase(),
+                        item.tipoCredito || '',
+                        Number(item.montoContratado) || 0,
+                        Number(item.saldoVigente) || 0,
+                        pct,
+                        item.destino || '',
+                        Number(item.plazo) || 0,
+                        fmtFechaLimpia(item.fechaOtorgamiento),
+                        fmtFechaLimpia(item.vencimiento),
+                        item.tasaAforo || '',
+                        Number(item.amortAnual) || 0,
+                        item.garantias || ''
+                    ]);
+                    r.height = 20;
+                    r.eachCell((cell, col) => {
+                        cell.font = { name: 'Segoe UI', size: 9, color: { argb: 'FF0F172A' }, bold: col === 1 };
+                        cell.border = borderThin;
+                        if (idx % 2 === 1) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+                        if (col === 3 || col === 4 || col === 11) { cell.numFmt = currencyFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                        else if (col === 5) { cell.numFmt = percentFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                        else if (col === 7) { cell.alignment = { horizontal: 'center', vertical: 'middle' }; }
+                        else { cell.alignment = { horizontal: 'left', vertical: 'middle' }; }
+                    });
+                });
+            }
+
+            // Totales Largo Plazo + Desglose BBVA / Otros Bancos
+            const addFooterLP = (label, monto, saldo, pct, amort, bgArgb, textArgb, isMainTotal) => {
+                const r = ws.addRow([label, '', monto, saldo, pct, '', '', '', '', '', amort, '']);
+                ws.mergeCells(`A${r.number}:B${r.number}`);
+                r.height = 21;
+                r.eachCell((cell, col) => {
+                    cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: textArgb } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgArgb } };
+                    cell.border = isMainTotal ? borderTotal : borderThin;
+                    if (col === 3 || col === 4 || col === 11) { cell.numFmt = currencyFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else if (col === 5) { cell.numFmt = percentFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else { cell.alignment = { horizontal: isMainTotal ? 'left' : 'right', vertical: 'middle' }; }
+                });
+            };
+
+            addFooterLP(
+                'TOTAL LARGO PLAZO',
+                m.totMontoLP,
+                m.totSaldoLP,
+                m.riesgoTotalSaldo > 0 ? m.totSaldoLP / m.riesgoTotalSaldo : 0,
+                m.totAmortLP,
+                'FFE2E8F0', 'FF072146', true
+            );
+            let bancosLP = {};
+            pasivosCargados.largoPlazo.forEach(p => {
+                let b = String(p.banco || 'OTRO').toUpperCase();
+                if(!bancosLP[b]) bancosLP[b] = {monto: 0, saldo: 0, amort: 0};
+                bancosLP[b].monto += Number(p.montoContratado) || 0;
+                bancosLP[b].saldo += Number(p.saldoVigente) || 0;
+                bancosLP[b].amort += Number(p.amortAnual) || 0;
+            });
+            for(let b in bancosLP) {
+                addFooterLP(`↳ Total ${b} (Largo Plazo)`, bancosLP[b].monto, bancosLP[b].saldo, m.riesgoTotalSaldo > 0 ? bancosLP[b].saldo / m.riesgoTotalSaldo : 0, bancosLP[b].amort, 'FFF1F5F9', 'FF334155', false);
+            }
+
+            ws.addRow([]);
+
+            // =========================================================
+            // C) RESUMEN CONSOLIDADO BBVA VS OTROS BANCOS (CORTO + LARGO)
+            // =========================================================
+            const secConsRow = ws.addRow(['C) RESUMEN CONSOLIDADO Y PARTICIPACIÓN BANCARIA (CORTO + LARGO PLAZO)']);
+            secConsRow.font = { name: 'Segoe UI', size: 11, bold: true, color: { argb: 'FF072146' } };
+            secConsRow.height = 22;
+
+            const consHeader = ws.addRow(['INSTITUCIÓN / CONCEPTO', '', 'MONTO CONTRATADO TOTAL', 'SALDO VIGENTE TOTAL', '% PARTICIPACIÓN', 'AMORTIZACIÓN ANUAL TOTAL']);
+            ws.mergeCells(`A${consHeader.number}:B${consHeader.number}`);
+            consHeader.height = 22;
+            consHeader.eachCell((cell, col) => {
+                cell.font = { name: 'Segoe UI', size: 9, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1464A5' } };
+                cell.border = borderThin;
+                cell.alignment = { horizontal: (col >= 3 && col <= 6) ? 'right' : 'left', vertical: 'middle' };
+            });
+
+            const addConsRow = (label, monto, saldo, pct, amort, bgArgb, textArgb) => {
+                const r = ws.addRow([label, '', monto, saldo, pct, amort]);
+                ws.mergeCells(`A${r.number}:B${r.number}`);
+                r.height = 21;
+                r.eachCell((cell, col) => {
+                    cell.font = { name: 'Segoe UI', size: 9.5, bold: true, color: { argb: textArgb } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgArgb } };
+                    cell.border = borderThin;
+                    if (col === 3 || col === 4 || col === 6) { cell.numFmt = currencyFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else if (col === 5) { cell.numFmt = percentFmt; cell.alignment = { horizontal: 'right', vertical: 'middle' }; }
+                    else { cell.alignment = { horizontal: 'left', vertical: 'middle' }; }
+                });
+            };
+
+            let bancosCons = {};
+            [...pasivosCargados.cortoPlazo, ...pasivosCargados.largoPlazo].forEach(p => {
+                let b = String(p.banco || 'OTRO').toUpperCase();
+                if(!bancosCons[b]) bancosCons[b] = {monto: 0, saldo: 0, amort: 0};
+                bancosCons[b].monto += Number(p.montoContratado) || 0;
+                bancosCons[b].saldo += Number(p.saldoVigente) || 0;
+                bancosCons[b].amort += Number(p.amortAnual) || 0;
+            });
+            for(let b in bancosCons) {
+                addConsRow(
+                    `TOTAL ${b} (Corto + Largo Plazo)`,
+                    bancosCons[b].monto,
+                    bancosCons[b].saldo,
+                    m.riesgoTotalSaldo > 0 ? bancosCons[b].saldo / m.riesgoTotalSaldo : 0,
+                    bancosCons[b].amort,
+                    'FFF8FAFC', 'FF334155'
+                );
+            }
+            addConsRow(
+                'RIESGO TOTAL BANCARIO',
+                m.riesgoTotalMonto,
+                m.riesgoTotalSaldo,
+                m.riesgoTotalSaldo > 0 ? 1 : 0,
+                m.totAmortLP,
+                'FF072146', 'FFFFFFFF'
+            );
+
+            ws.addRow([]);
+
+            // Descargar archivo .xlsx
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `BBVA_Pasivos_Bancarios_${noCliente}_${empresa.replace(/\s+/g, '_')}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

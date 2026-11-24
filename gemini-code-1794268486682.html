@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debt Sizing & Capacidad de Endeudamiento - Vertical M</title>
+  
+  <!-- Librerías de Estilo, Iconos, Gráficos y Exportación -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --bbva-blue: #004481; 
+      --bbva-light-blue: #009ee3; 
+      --bbva-navy: #072146;
+    }
+
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+    }
+    
+    body { 
+      background: radial-gradient(circle at 50% 30%, #00d2ff 0%, #0052d4 40%, #030b1e 90%) !important;
+      background-attachment: fixed !important;
+      color: #ffffff; 
+      min-height: 100vh; 
+      overflow-x: hidden; 
+      padding-bottom: 60px; 
+    }
+
+    /* CAPA DE BALONES ANIMADOS EN EL FONDO */
+    .background-balls {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 0; opacity: 0.85;
+    }
+
+    .ball {
+      position: absolute; top: 100vh; background-size: contain; background-position: center; background-repeat: no-repeat;
+      opacity: 0.8; filter: drop-shadow(0 0 14px rgba(0, 242, 254, 0.8));
+      animation-name: floatDiagonal; animation-iteration-count: infinite; animation-timing-function: linear; animation-fill-mode: backwards;
+    }
+
+    .ball:nth-child(1) { background-image: url('balon.avif'); left: 2%; width: 110px; height: 110px; animation-duration: 10s; animation-delay: 0s; }
+    .ball:nth-child(2) { background-image: url('balon_2.avif'); left: 14%; width: 150px; height: 150px; animation-duration: 14s; animation-delay: 3s; }
+    .ball:nth-child(3) { background-image: url('balon_3.avif'); left: 28%; width: 90px; height: 90px; animation-duration: 9s; animation-delay: 1s; }
+    .ball:nth-child(4) { background-image: url('balon_4.avif'); left: 45%; width: 170px; height: 170px; animation-duration: 16s; animation-delay: 5s; }
+    .ball:nth-child(5) { background-image: url('balon_5.avif'); left: 65%; width: 120px; height: 120px; animation-duration: 11s; animation-delay: 2s; }
+    .ball:nth-child(6) { background-image: url('balon_6.avif'); left: 82%; width: 160px; height: 160px; animation-duration: 15s; animation-delay: 4s; }
+
+    @keyframes floatDiagonal {
+      0% { transform: translateY(10vh) translateX(0) rotate(0deg); }
+      100% { transform: translateY(-130vh) translateX(120px) rotate(360deg); }
+    }
+
+    .bg-ambient-glow {
+      position: fixed; top: -20%; left: 50%; transform: translateX(-50%);
+      width: 1000px; height: 600px;
+      background: radial-gradient(circle, rgba(0, 212, 255, 0.2) 0%, rgba(0, 82, 212, 0.1) 50%, rgba(0,0,0,0) 80%);
+      pointer-events: none; z-index: 1;
+    }
+
+    /* TARJETAS GLASSMORPHISM */
+    .glass-card {
+      background: rgba(3, 11, 30, 0.75) !important;
+      border: 1px solid rgba(0, 212, 255, 0.35) !important;
+      backdrop-filter: blur(16px) !important;
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+      transition: all 0.3s ease;
+    }
+
+    .btn-back {
+      background: rgba(3, 11, 30, 0.6);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      backdrop-filter: blur(10px);
+      color: #00d4ff;
+      transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+      background: rgba(0, 212, 255, 0.2);
+      border-color: rgba(0, 212, 255, 0.8);
+      color: #ffffff;
+      box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+      transform: translateX(-3px);
+    }
+
+    .btn-action {
+      background: linear-gradient(135deg, #00d4ff 0%, #0052d4 50%, #7928ca 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 4s ease infinite;
+      box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+      transition: all 0.3s ease;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .input-glass {
+      background: rgba(7, 25, 56, 0.75);
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      color: #ffffff;
+      transition: all 0.2s ease;
+    }
+    .input-glass:focus {
+      outline: none;
+      border-color: #00d4ff;
+      box-shadow: 0 0 12px rgba(0, 212, 255, 0.5);
+      background: rgba(7, 30, 70, 0.95);
+    }
+
+    /* SLIDERS NEÓN PERSONALIZADOS */
+    input[type=range].neon-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(0, 212, 255, 0.4);
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type=range].neon-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #00d4ff;
+      cursor: pointer;
+      box-shadow: 0 0 12px #00d4ff;
+      border: 2px solid #ffffff;
+      transition: transform 0.15s ease;
+    }
+    input[type=range].neon-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    /* ESTILOS DE PLANTILLA PDF EJECUTIVO */
+    #pdfPlantillaSizing {
+      display: none;
+      background: #ffffff !important;
+      color: #072146 !important;
+      font-family: Arial, sans-serif !important;
+      padding: 25px;
+    }
+  </style>
+</head>
+<body class="relative z-10">
+
+  <!-- FONDO ANIMADO -->
+  <div class="background-balls">
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+    <div class="ball"></div><div class="ball"></div><div class="ball"></div>
+  </div>
+  <div class="bg-ambient-glow"></div>
+
+  <main class="container mx-auto px-4 py-6 max-w-[1650px] relative z-10">
+    
+    <!-- BARRA DE NAVEGACIÓN SUPERIOR -->
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 animate__animated animate__fadeInDown">
+      <a href="index.html" class="btn-back px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 shadow-lg">
+        <i class="fas fa-arrow-left"></i> Regresar al Directorio
+      </a>
+
+      <div class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-bold tracking-widest uppercase shadow-lg">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        Modelo de Estructuración M
+      </div>
+
+      <div class="px-3 py-1 rounded-full bg-emerald-950/70 border border-emerald-400/40 text-xs font-mono text-emerald-300 font-bold">
+        DEBT SIZING & COVENANTS
+      </div>
+    </div>
+
+    <!-- ENCABEZADO PRINCIPAL -->
+    <header class="text-center mb-8 animate__animated animate__fadeInDown">
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-white mb-2">
+        Calculadora de <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 via-emerald-300 to-sky-300">Capacidad de Endeudamiento</span>
+      </h1>
+      <p class="text-slate-300 text-xs md:text-sm max-w-3xl mx-auto">
+        Determina el techo máximo de endeudamiento adicional (*Debt Sizing*) cruzando el EBITDA y deuda actual del AFE contra políticas de Apalancamiento (*Net Debt / EBITDA*) y Servicio de Deuda (*DSCR*).
+      </p>
+    </header>
+
+    <!-- BARRA DE CONEXIÓN CON GOOGLE SHEETS AFE -->
+    <section class="glass-card rounded-2xl p-5 mb-6 animate__animated animate__fadeInUp">
+      <div class="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-4">
+        <div class="w-full lg:w-auto flex-grow grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <div>
+            <label class="block font-bold text-cyan-300 mb-1">
+              <i class="fas fa-database mr-1"></i> Importar Cliente desde AFE
+            </label>
+            <div class="flex gap-2">
+              <input type="text" id="no_cliente_afe" placeholder="Ej. 37943836" class="input-glass w-full px-3 py-2 rounded-xl font-mono text-xs font-bold">
+              <button onclick="importarDesdeAFE()" class="btn-action text-white px-4 py-2 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0">
+                <i class="fas fa-cloud-download-alt"></i> Importar
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Razón Social / Empresa</label>
+            <input type="text" id="nombre_empresa" value="GRUPO INDUSTRIAL VIDA SA DE CV" class="input-glass w-full px-3 py-2 rounded-xl text-xs font-bold uppercase">
+          </div>
+
+          <div>
+            <label class="block font-semibold text-slate-300 mb-1">Ejercicio Base Cargado</label>
+            <input type="text" id="fecha_ejercicio" value="2025-12-31 (AUDITADO)" class="input-glass w-full px-3 py-2 rounded-xl text-xs font-mono text-cyan-200">
+          </div>
+
+          <div class="flex items-end gap-2">
+            <button onclick="cargarDemoRapido()" class="w-full px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-500/30 text-cyan-300 font-bold text-xs transition flex items-center justify-center gap-1.5">
+              <i class="fas fa-bolt"></i> Cargar Caso Demo
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="mt-2.5 flex items-center justify-between text-[11px]">
+        <span id="status_afe" class="text-slate-400">
+          <i class="fas fa-info-circle text-cyan-400"></i> Puedes importar un cliente directo de tu Google Sheet de AFE o ajustar las cifras manualmente abajo.
+        </span>
+      </div>
+    </section>
+
+    <!-- CONTENIDO PRINCIPAL: 12 COLUMNAS -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- COLUMNA IZQUIERDA (4 COLS): PARÁMETROS AFE Y POLÍTICAS DE RIESGO -->
+      <div class="lg:col-span-4 space-y-5 animate__animated animate__fadeInLeft">
+        
+        <!-- 1. CIFRAS BASE DEL CLIENTE (AFE) -->
+        <section class="glass-card rounded-2xl p-5">
+          <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3 mb-4">
+            <div class="flex items-center gap-2">
+              <span class="p-2 bg-cyan-500/20 text-cyan-300 rounded-lg"><i class="fas fa-chart-pie"></i></span>
+              <h2 class="text-xs font-extrabold uppercase tracking-wider text-cyan-300">1. Cifras Base AFE ($ Miles)</h2>
+            </div>
+            <span class="text-[10px] bg-blue-950 px-2 py-0.5 rounded border border-cyan-500/30 text-cyan-200 font-mono">Editable</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Ventas Netas ($)</label>
+                <input type="number" id="inp_ventas" value="3724666" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono">
+              </div>
+              <div>
+                <label class="block text-emerald-300 mb-1 font-bold">UAFIRDA / EBITDA ($)</label>
+                <input type="number" id="inp_ebitda" value="349460" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono font-bold text-emerald-300 border-emerald-500/50">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Deuda Fin. Total Actual ($)</label>
+                <input type="number" id="inp_deuda_actual" value="660920" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono font-bold text-amber-300">
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Caja y Bancos ($)</label>
+                <input type="number" id="inp_caja" value="39114" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Servicio Deuda Actual / Año ($)</label>
+                <input type="number" id="inp_servicio_actual" value="145000" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono" title="Intereses + Amortizaciones anuales de créditos vigentes">
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">CAPEX Mantenimiento + Imp ($)</label>
+                <input type="number" id="inp_capex_imp" value="60546" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono" title="Impuestos pagados e inversión operativa indispensable">
+              </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900/80 border border-cyan-500/20 flex justify-between items-center mt-2">
+              <span class="text-slate-300 font-semibold">Deuda Financiera Neta Actual:</span>
+              <span id="lbl_deuda_neta_actual" class="font-mono font-black text-cyan-300 text-sm">$621,806.00</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. POLÍTICAS DE CRÉDITO Y ESTRUCTURA PROPUESTA -->
+        <section class="glass-card rounded-2xl p-5">
+          <div class="flex items-center gap-2 border-b border-cyan-500/30 pb-3 mb-4">
+            <span class="p-2 bg-purple-500/20 text-purple-300 rounded-lg"><i class="fas fa-sliders-h"></i></span>
+            <h2 class="text-xs font-extrabold uppercase tracking-wider text-purple-300">2. Parámetros & Covenants Objetivo</h2>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <!-- SLIDER 1: APALANCAMIENTO MÁXIMO -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-bold text-slate-200">Covenant Deuda Neta / EBITDA Máx:</label>
+                <span id="badge_lev_max" class="px-2 py-0.5 rounded bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 font-mono font-bold">3.00x</span>
+              </div>
+              <input type="range" id="slider_lev_max" min="1.0" max="6.0" step="0.1" value="3.0" oninput="calcularDebtSizing()" class="neon-slider">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                <span>Conservador (1.5x)</span>
+                <span>Estándar (3.0x)</span>
+                <span>Agresivo (5.0x+)</span>
+              </div>
+            </div>
+
+            <!-- SLIDER 2: DSCR MÍNIMO -->
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <label class="font-bold text-slate-200">Covenant RCSD (DSCR) Mínimo:</label>
+                <span id="badge_dscr_min" class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 font-mono font-bold">1.30x</span>
+              </div>
+              <input type="range" id="slider_dscr_min" min="1.0" max="2.5" step="0.05" value="1.30" oninput="calcularDebtSizing()" class="neon-slider">
+              <div class="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                <span>Límite (1.0x)</span>
+                <span>Banca Corp (1.30x)</span>
+                <span>Holgado (2.0x)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 border-t border-cyan-500/20">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Tasa Anual Nuevo Crédito (%)</label>
+                <input type="number" step="0.1" id="inp_tasa_nueva" value="11.5" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono font-bold text-cyan-300">
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Plazo Propuesto (Años)</label>
+                <input type="number" step="0.5" min="1" max="20" id="inp_plazo_nuevo" value="5" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono font-bold">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Esquema de Pago</label>
+                <select id="sel_esquema" onchange="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-semibold">
+                  <option value="LINEAL">Amortización Lineal (Año 1)</option>
+                  <option value="MORTGAGE">Cuota Nivelada (Mortgage)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Balloon Payment (%)</label>
+                <input type="number" step="5" min="0" max="80" id="inp_balloon" value="0" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono">
+              </div>
+            </div>
+
+            <div class="pt-2 border-t border-cyan-500/20">
+              <label class="block text-amber-300 mb-1 font-bold">
+                <i class="fas fa-bullseye mr-1"></i> Monto Solicitado por el Cliente ($) (Opcional)
+              </label>
+              <input type="number" id="inp_monto_solicitado" value="350000" oninput="calcularDebtSizing()" class="input-glass w-full px-3 py-2 rounded-xl font-mono font-extrabold text-amber-300 border-amber-500/50" placeholder="Para evaluar viabilidad">
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- COLUMNA DERECHA (8 COLS): RESULTADOS DE DEBT SIZING, SEMÁFORO Y GRÁFICOS -->
+      <div class="lg:col-span-8 space-y-6 animate__animated animate__fadeInRight">
+        
+        <!-- 3 TARJETAS DE CAPACIDAD MÁXIMA -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- TECHO POR APALANCAMIENTO -->
+          <div class="glass-card rounded-2xl p-5 border-l-4 border-l-cyan-400">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-cyan-300">1. Capacidad por Balance</span>
+              <i class="fas fa-balance-scale text-cyan-400"></i>
+            </div>
+            <div id="kpi_cap_apalancamiento" class="text-2xl font-black font-mono text-white my-2">$0.00</div>
+            <p class="text-[11px] text-slate-300" id="sub_cap_apalancamiento">
+              Deuda adicional hasta llegar a 3.00x Deuda Neta / EBITDA.
+            </p>
+          </div>
+
+          <!-- TECHO POR FLUJO (DSCR) -->
+          <div class="glass-card rounded-2xl p-5 border-l-4 border-l-purple-400">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-purple-300">2. Capacidad por Flujo (DSCR)</span>
+              <i class="fas fa-water text-purple-400"></i>
+            </div>
+            <div id="kpi_cap_flujo" class="text-2xl font-black font-mono text-white my-2">$0.00</div>
+            <p class="text-[11px] text-slate-300" id="sub_cap_flujo">
+              Crédito máximo soportado manteniendo RCSD >= 1.30x.
+            </p>
+          </div>
+
+          <!-- MONTO MÁXIMO RECOMENDADO (DICTAMEN) -->
+          <div class="glass-card rounded-2xl p-5 bg-gradient-to-br from-emerald-950/80 to-cyan-950/80 border-2 border-emerald-400/70 shadow-xl">
+            <div class="flex justify-between items-start">
+              <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-300">★ Límite Financiable BBVA</span>
+              <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-bold" id="badge_restriccion">Rige Balance</span>
+            </div>
+            <div id="kpi_monto_recomendado" class="text-2xl md:text-3xl font-black font-mono text-emerald-300 my-2">$0.00</div>
+            <p class="text-[11px] text-emerald-100/90 font-medium" id="sub_monto_recomendado">
+              Monto máximo sin romper ningún covenant institucional.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- BANNER DICTAMEN DE LA SOLICITUD DEL CLIENTE -->
+        <div id="card_dictamen_solicitud" class="glass-card rounded-2xl p-5 border border-cyan-500/40 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div id="icono_dictamen" class="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 flex items-center justify-center text-2xl shrink-0">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div>
+              <h3 class="text-sm font-black uppercase tracking-wider text-white" id="titulo_dictamen">
+                VIABILIDAD DEL MONTO SOLICITADO ($350,000): VIABLE DENTRO DE PARÁMETROS
+              </h3>
+              <p class="text-xs text-slate-300 mt-0.5" id="texto_dictamen">
+                El monto solicitado utiliza el 82% de la capacidad máxima de endeudamiento adicional del cliente.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 shrink-0">
+            <button onclick="exportarExcelSizing()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg">
+              <i class="fas fa-file-excel"></i> Exportar Excel
+            </button>
+            <button onclick="exportarPDFSizing()" class="px-3.5 py-2 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg">
+              <i class="fas fa-file-pdf"></i> Dictamen PDF
+            </button>
+            <button onclick="enviarASimuladorAmortizacion()" class="px-3.5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-lg" title="Abrir en Tabla de Amortización Lineal">
+              <i class="fas fa-calculator"></i> Ver Tabla Amort.
+            </button>
+          </div>
+        </div>
+
+        <!-- TABLA COMPARATIVA DE COVENANTS (PRE-CRÉDITO VS POST-CRÉDITO) -->
+        <section class="glass-card rounded-2xl p-5">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-4 border-b border-cyan-500/20 pb-3">
+            <div>
+              <h3 class="text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-2">
+                <i class="fas fa-traffic-light text-cyan-400"></i> Impacto en Covenants Financieros (Estrés de originación)
+              </h3>
+              <p class="text-[11px] text-slate-300">Comparativo entre la situación actual AFE, el escenario con el Monto Solicitado y el Techo Máximo.</p>
+            </div>
+            <div class="text-xs font-mono text-cyan-300 bg-cyan-950/60 px-3 py-1 rounded-lg border border-cyan-500/30">
+              Flujo Libre Pre-Deuda: <strong id="lbl_cfads">$0.00</strong>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-950/90 text-cyan-300 uppercase border-b border-cyan-500/30">
+                  <th class="p-3">Indicador / Covenant</th>
+                  <th class="p-3 text-center">Límite Política</th>
+                  <th class="p-3 text-right">Actual (AFE)</th>
+                  <th class="p-3 text-right bg-amber-950/30 text-amber-300">Post Monto Solicitado</th>
+                  <th class="p-3 text-right bg-emerald-950/30 text-emerald-300">En Límite Financiable</th>
+                  <th class="p-3 text-center">Estatus Solicitud</th>
+                </tr>
+              </thead>
+              <tbody id="tbody_covenants" class="divide-y divide-cyan-500/15 text-slate-200 font-mono">
+                <!-- Generado dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- GRÁFICO Y RECOMENDACIÓN DE ESTRUCTURA (CP VS LP) -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          
+          <!-- GRÁFICO COMPARATIVO -->
+          <div class="md:col-span-7 glass-card rounded-2xl p-5">
+            <h3 class="text-xs font-extrabold uppercase tracking-wider text-cyan-300 mb-3 flex items-center gap-2">
+              <i class="fas fa-chart-bar"></i> Comparativa de Techo de Deuda ($ Miles)
+            </h3>
+            <div class="h-60">
+              <canvas id="chartDebtSizing"></canvas>
+            </div>
+          </div>
+
+          <!-- DESGLOSE SUGERIDO POR DESTINO -->
+          <div class="md:col-span-5 glass-card rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-emerald-300 mb-3 flex items-center gap-2">
+                <i class="fas fa-sitemap"></i> Mezcla Sugerida del Nuevo Crédito
+              </h3>
+              <p class="text-[11px] text-slate-300 mb-4">
+                Distribución recomendada sobre el monto viable (<span id="lbl_base_mezcla" class="text-white font-bold font-mono">$0</span>) según generación de flujo operativo:
+              </p>
+
+              <div class="space-y-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-900/80 border border-cyan-500/30">
+                  <div class="flex justify-between text-cyan-300 font-bold mb-1">
+                    <span><i class="fas fa-sync-alt mr-1"></i> Línea Revolvente / Cap. Trabajo (30%)</span>
+                    <span id="lbl_sug_cp" class="font-mono">$0.00</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400">Crediflex o Simple CP para financiar brecha de clientes e inventarios.</p>
+                </div>
+
+                <div class="p-3 rounded-xl bg-slate-900/80 border border-emerald-500/30">
+                  <div class="flex justify-between text-emerald-300 font-bold mb-1">
+                    <span><i class="fas fa-building mr-1"></i> Crédito Simple Largo Plazo (70%)</span>
+                    <span id="lbl_sug_lp" class="font-mono">$0.00</span>
+                  </div>
+                  <p class="text-[10px] text-slate-400">CAPEX, expansión o reperfilamiento de pasivos a <span id="lbl_plazo_sug">5</span> años.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-cyan-500/20 flex justify-between items-center text-[11px] text-slate-300">
+              <span>Servicio Anual Nueva Deuda:</span>
+              <span id="lbl_nuevo_servicio_anual" class="font-mono font-bold text-amber-300 text-xs">$0.00 / año</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- PLANTILLA OCULTA PARA EXPORTACIÓN A PDF EJECUTIVO -->
+  <div id="pdfPlantillaSizing">
+    <div style="border-bottom: 3px solid #004481; padding-bottom: 12px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <div style="font-size: 18px; font-weight: bold; color: #004481;">DICTAMEN DE CAPACIDAD DE ENDEUDAMIENTO (DEBT SIZING)</div>
+        <div style="font-size: 11px; color: #009ee3; font-weight: bold;">Vertical de Financiamiento - Modelo de Estructuración M</div>
+      </div>
+      <div style="text-align: right; font-size: 10px; color: #475569;">
+        <div><strong>Fecha:</strong> <span id="pdf_fecha"></span></div>
+        <div><strong>Cliente:</strong> <span id="pdf_cliente"></span></div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; font-size: 10px;">
+      <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; background: #f8fafc;">
+        <strong style="color: #004481; display: block; margin-bottom: 4px;">1. CAPACIDAD POR APALANCAMIENTO</strong>
+        <div style="font-size: 16px; font-weight: bold; color: #072146;" id="pdf_cap_lev">$0.00</div>
+        <span style="color: #64748b; font-size: 9px;" id="pdf_sub_lev"></span>
+      </div>
+      <div style="border: 1px solid #cbd5e1; padding: 10px; border-radius: 6px; background: #f8fafc;">
+        <strong style="color: #004481; display: block; margin-bottom: 4px;">2. CAPACIDAD POR FLUJO (DSCR)</strong>
+        <div style="font-size: 16px; font-weight: bold; color: #072146;" id="pdf_cap_flujo">$0.00</div>
+        <span style="color: #64748b; font-size: 9px;" id="pdf_sub_flujo"></span>
+      </div>
+      <div style="border: 2px solid #059669; padding: 10px; border-radius: 6px; background: #ecfdf5;">
+        <strong style="color: #065f46; display: block; margin-bottom: 4px;">LÍMITE MÁXIMO RECOMENDADO</strong>
+        <div style="font-size: 16px; font-weight: bold; color: #047857;" id="pdf_cap_rec">$0.00</div>
+        <span style="color: #065f46; font-size: 9px;">Monto máximo conservador dentro de políticas</span>
+      </div>
+    </div>
+
+    <div style="background: #f1f5f9; border-left: 4px solid #004481; padding: 10px; margin-bottom: 18px; font-size: 10px;">
+      <strong style="color: #072146;" id="pdf_dictamen_titulo"></strong>
+      <p style="margin-top: 4px; color: #334155;" id="pdf_dictamen_texto"></p>
+    </div>
+
+    <h3 style="font-size: 11px; color: #004481; text-transform: uppercase; margin-bottom: 6px;">Resumen de Indicadores y Covenants (Cifras en Miles)</h3>
+    <table style="width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 15px;" id="pdf_tabla_covenants">
+    </table>
+  </div>
+
+  <!-- LÓGICA JAVASCRIPT -->
+  <script>
+    // Misma URL de tu Web App de AFE_REGISTRO.html para traer datos reales del cliente
+    const AFE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby0n-6Gkv5zBkxVKXE6_a8HIn9P0tcPXvzj7KuOcwAeBIinIUc6KOZJ3RfNm2dT28-a/exec";
+
+    let chartSizingInstance = null;
+    let estadoCalculoActual = {};
+
+    function fmtMoney(val) {
+      return '$' + Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtRatio(val) {
+      if (!isFinite(val) || isNaN(val)) return '0.00x';
+      return Number(val).toFixed(2) + 'x';
+    }
+
+    // CONEXIÓN JSONP CON TU GOOGLE SHEET DE AFE_REGISTRO.HTML
+    function importarDesdeAFE() {
+      const noCliente = document.getElementById('no_cliente_afe').value.trim();
+      const statusEl = document.getElementById('status_afe');
+
+      if (!noCliente) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Número de Cliente requerido',
+          text: 'Ingresa un número de cliente registrado en el sistema AFE (ej. 37943836).',
+          background: '#072146',
+          color: '#ffffff',
+          confirmButtonColor: '#00d4ff'
+        });
+        return;
+      }
+
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin text-cyan-400"></i> Conectando con Google Sheets de AFE...';
+
+      const callbackName = 'afe_cb_' + Math.round(Math.random() * 1000000);
+      window[callbackName] = function(res) {
+        delete window[callbackName];
+        const sc = document.getElementById(callbackName);
+        if (sc) sc.remove();
+
+        if (res && res.exito && res.ejercicios && res.ejercicios.length > 0) {
+          const clienteNombre = (res.cliente && res.cliente.nombre) ? res.cliente.nombre : 'CLIENTE AFE ' + noCliente;
+          // Tomar el último ejercicio registrado
+          const ultEj = res.ejercicios[res.ejercicios.length - 1];
+          const er = ultEj.er || {};
+          const bg = ultEj.bg || {};
+
+          const ventas = er["VENTAS NETAS TOTALES"] || 0;
+          const uafir = er["U A F I R"] || 0;
+          const depr = er["DEPRECIACION"] || 0;
+          const amort = er["AMORTIZACION"] || 0;
+          const uafirda = er["UAFIRDA"] || (uafir + depr + amort);
+
+          const bancomerCP = bg["BANCOMER CORTO PLAZO"] || 0;
+          const otrosCP = bg["OTROS BANCOS CORTO PLAZO"] || 0;
+          const emCP = bg["EMISIONES DE DEUDA (CP)"] || 0;
+          const porcBancomer = bg["PORC. CIRC. LP BANCOMER"] || 0;
+          const porcOtros = bg["PORC. CIRC. LP OTROS BANCOS"] || 0;
+          const bancomerLP = bg["BANCOMER LARGO PLAZO"] || 0;
+          const otrosLP = bg["OTROS BANCOS LARGO PLAZO"] || 0;
+          const emLP = bg["EMISIONES DE DEUDA (LP)"] || 0;
+
+          const deudaTotal = er["DEUDA FINANCIERA TOTAL"] || (bancomerCP + otrosCP + emCP + porcBancomer + porcOtros + bancomerLP + otrosLP + emLP);
+          const caja = bg["CAJA Y BANCOS"] || 0;
+          const gtosFin = er["GASTOS FINANCIEROS"] || 0;
+          const isr = er["I.S.R. CAUSADO"] || 0;
+          const invAct = er["INVERSION EN ACTIVOS FIJOS"] || 0;
+
+          document.getElementById('nombre_empresa').value = clienteNombre.toUpperCase();
+          document.getElementById('fecha_ejercicio').value = `${ultEj.metadata?.fechaCierre || 'Último'} (${ultEj.metadata?.auditor || 'AFE'})`;
+          document.getElementById('inp_ventas').value = ventas;
+          document.getElementById('inp_ebitda').value = uafirda;
+          document.getElementById('inp_deuda_actual').value = deudaTotal;
+          document.getElementById('inp_caja').value = caja;
+          document.getElementById('inp_servicio_actual').value = gtosFin + porcBancomer + porcOtros;
+          document.getElementById('inp_capex_imp').value = isr + invAct;
+
+          statusEl.className = "text-emerald-400 font-bold text-[11px]";
+          statusEl.innerHTML = `<i class="fas fa-check-circle"></i> Datos financieros importados exitosamente del ejercicio ${ultEj.metadata?.fechaCierre || ''}.`;
+
+          calcularDebtSizing();
+        } else {
+          statusEl.className = "text-amber-300 font-bold text-[11px]";
+          statusEl.innerHTML = `<i class="fas fa-exclamation-triangle"></i> No se encontraron ejercicios en AFE para el cliente ${noCliente}. Verifica el número o usa captura manual.`;
+        }
+      };
+
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = `${AFE_WEB_APP_URL}?action=buscarClienteAFE&callback=${callbackName}&data=${encodeURIComponent(JSON.stringify(noCliente))}`;
+      script.onerror = function() {
+        statusEl.className = "text-red-400 font-bold text-[11px]";
+        statusEl.innerHTML = `<i class="fas fa-times-circle"></i> Error de conexión con Google Sheets AFE. Puedes utilizar la calculadora manualmente.`;
+      };
+      document.body.appendChild(script);
+    }
+
+    function cargarDemoRapido() {
+      document.getElementById('no_cliente_afe').value = '37943836';
+      document.getElementById('nombre_empresa').value = 'GRUPO INDUSTRIAL VIDA SA DE CV';
+      document.getElementById('fecha_ejercicio').value = '2025-12-31 (AUDITADO S/SALVEDAD)';
+      document.getElementById('inp_ventas').value = 3724666;
+      document.getElementById('inp_ebitda').value = 349460;
+      document.getElementById('inp_deuda_actual').value = 660920;
+      document.getElementById('inp_caja').value = 39114;
+      document.getElementById('inp_servicio_actual').value = 148743;
+      document.getElementById('inp_capex_imp').value = 60546;
+      document.getElementById('inp_monto_solicitado').value = 350000;
+      calcularDebtSizing();
+    }
+
+    // MOTOR PRINCIPAL DE CÁLCULO INVERSO (DEBT SIZING)
+    function calcularDebtSizing() {
+      const ventas = parseFloat(document.getElementById('inp_ventas').value) || 0;
+      const ebitda = parseFloat(document.getElementById('inp_ebitda').value) || 0;
+      const deudaActual = parseFloat(document.getElementById('inp_deuda_actual').value) || 0;
+      const caja = parseFloat(document.getElementById('inp_caja').value) || 0;
+      const servicioActual = parseFloat(document.getElementById('inp_servicio_actual').value) || 0;
+      const capexImp = parseFloat(document.getElementById('inp_capex_imp').value) || 0;
+
+      const levMax = parseFloat(document.getElementById('slider_lev_max').value) || 3.0;
+      const dscrMin = parseFloat(document.getElementById('slider_dscr_min').value) || 1.30;
+      const tasaAnual = (parseFloat(document.getElementById('inp_tasa_nueva').value) || 0) / 100;
+      const plazoAnos = Math.max(0.5, parseFloat(document.getElementById('inp_plazo_nuevo').value) || 5);
+      const esquema = document.getElementById('sel_esquema').value;
+      const balloonPct = Math.min(0.9, (parseFloat(document.getElementById('inp_balloon').value) || 0) / 100);
+      const montoSolicitado = parseFloat(document.getElementById('inp_monto_solicitado').value) || 0;
+
+      document.getElementById('badge_lev_max').innerText = levMax.toFixed(2) + 'x';
+      document.getElementById('badge_dscr_min').innerText = dscrMin.toFixed(2) + 'x';
+
+      // 1. Deuda Neta Actual
+      const deudaNetaActual = Math.max(0, deudaActual - caja);
+      document.getElementById('lbl_deuda_neta_actual').innerText = fmtMoney(deudaNetaActual);
+
+      // 2. Capacidad Adicional por Múltiplo de Apalancamiento (Deuda Neta / EBITDA <= levMax)
+      const deudaNetaMaximaPermitida = ebitda * levMax;
+      const capacidadPorBalance = Math.max(0, deudaNetaMaximaPermitida - deudaNetaActual);
+
+      // 3. Capacidad Adicional por Flujo / DSCR
+      // Flujo Disponible para Servicio de Deuda (CFADS) = EBITDA - Impuestos/Capex Mantenimiento
+      const cfads = Math.max(0, ebitda - capexImp);
+      document.getElementById('lbl_cfads').innerText = fmtMoney(cfads);
+
+      // Servicio de Deuda Total Máximo Anual que soporta el CFADS respetando el DSCR mínimo
+      const servicioDeudaTotalMax = dscrMin > 0 ? (cfads / dscrMin) : 0;
+      const flujoDisponibleNuevaDeuda = Math.max(0, servicioDeudaTotalMax - servicioActual);
+
+      // Factor de Servicio Anual por cada $1 de Nuevo Crédito según esquema
+      let constanteAnualDeuda = 0;
+      if (esquema === 'LINEAL') {
+        // En Amortización Lineal el año 1 es el más exigente: Amortización Anual + Interés año 1
+        const amortAnualPct = (1 - balloonPct) / plazoAnos;
+        constanteAnualDeuda = amortAnualPct + tasaAnual;
+      } else {
+        // En Cuota Nivelada (Mortgage Style) mensual
+        const rMes = tasaAnual / 12;
+        const nMeses = plazoAnos * 12;
+        if (rMes > 0) {
+          const factorMes = (rMes * Math.pow(1 + rMes, nMeses)) / (Math.pow(1 + rMes, nMeses) - 1);
+          constanteAnualDeuda = (factorMes * 12) * (1 - balloonPct) + (balloonPct * tasaAnual);
+        } else {
+          constanteAnualDeuda = (1 - balloonPct) / plazoAnos;
+        }
+      }
+
+      const capacidadPorFlujo = constanteAnualDeuda > 0 ? (flujoDisponibleNuevaDeuda / constanteAnualDeuda) : 0;
+
+      // 4. Límite Financiable Recomendado (El menor de los dos techos para cumplir ambos covenants)
+      const montoRecomendado = Math.min(capacidadPorBalance, capacidadPorFlujo);
+      const rigeBalance = capacidadPorBalance <= capacidadPorFlujo;
+
+      // Actualizar Tarjetas KPI
+      document.getElementById('kpi_cap_apalancamiento').innerText = fmtMoney(capacidadPorBalance);
+      document.getElementById('sub_cap_apalancamiento').innerText = `Techo Deuda Neta Total: ${fmtMoney(deudaNetaMaximaPermitida)} (${levMax.toFixed(2)}x EBITDA)`;
+
+      document.getElementById('kpi_cap_flujo').innerText = fmtMoney(capacidadPorFlujo);
+      document.getElementById('sub_cap_flujo').innerText = `Soporta ${fmtMoney(flujoDisponibleNuevaDeuda)}/año adicionales con DSCR >= ${dscrMin.toFixed(2)}x`;
+
+      document.getElementById('kpi_monto_recomendado').innerText = fmtMoney(montoRecomendado);
+      document.getElementById('badge_restriccion').innerText = rigeBalance ? 'Rige Balance (Lev)' : 'Rige Flujo (DSCR)';
+      document.getElementById('sub_monto_recomendado').innerText = rigeBalance
+        ? 'Restringido por múltiplo máximo de Apalancamiento Neto.'
+        : 'Restringido por capacidad de generación de flujo (DSCR).';
+
+      // 5. Métricas Pre-Crédito, Post-Solicitado y Post-Límite
+      const levActual = ebitda > 0 ? (deudaNetaActual / ebitda) : 0;
+      const levSolicitado = ebitda > 0 ? ((deudaNetaActual + montoSolicitado) / ebitda) : 0;
+      const levMaximo = ebitda > 0 ? ((deudaNetaActual + montoRecomendado) / ebitda) : 0;
+
+      const dscrActual = servicioActual > 0 ? (cfads / servicioActual) : 99.9;
+      const servSolicitado = servicioActual + (montoSolicitado * constanteAnualDeuda);
+      const dscrSolicitado = servSolicitado > 0 ? (cfads / servSolicitado) : 0;
+
+      const servMaximo = servicioActual + (montoRecomendado * constanteAnualDeuda);
+      const dscrMaximo = servMaximo > 0 ? (cfads / servMaximo) : 0;
+
+      const margenEbitda = ventas > 0 ? ((ebitda / ventas) * 100) : 0;
+
+      // Evaluar Dictamen de Monto Solicitado
+      const cardDictamen = document.getElementById('card_dictamen_solicitud');
+      const iconoDictamen = document.getElementById('icono_dictamen');
+      const tituloDictamen = document.getElementById('titulo_dictamen');
+      const textoDictamen = document.getElementById('texto_dictamen');
+
+      if (montoSolicitado <= montoRecomendado && montoRecomendado > 0) {
+        const pctUso = ((montoSolicitado / montoRecomendado) * 100).toFixed(1);
+        cardDictamen.className = "glass-card rounded-2xl p-5 border-2 border-emerald-400/60 flex flex-col md:flex-row items-center justify-between gap-4";
+        iconoDictamen.className = "w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-400 text-emerald-300 flex items-center justify-center text-2xl shrink-0";
+        iconoDictamen.innerHTML = '<i class="fas fa-check-circle"></i>';
+        tituloDictamen.innerText = `SOLICITUD POR ${fmtMoney(montoSolicitado)}: VIABLE EN POLÍTICAS`;
+        textoDictamen.innerText = `Consume el ${pctUso}% del cupo máximo disponible. Mantiene Apalancamiento en ${levSolicitado.toFixed(2)}x y DSCR en ${dscrSolicitado.toFixed(2)}x.`;
+      } else if (montoSolicitado <= Math.max(capacidadPorBalance, capacidadPorFlujo)) {
+        cardDictamen.className = "glass-card rounded-2xl p-5 border-2 border-amber-400/60 flex flex-col md:flex-row items-center justify-between gap-4";
+        iconoDictamen.className = "w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400 text-amber-300 flex items-center justify-center text-2xl shrink-0";
+        iconoDictamen.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+        tituloDictamen.innerText = `SOLICITUD POR ${fmtMoney(montoSolicitado)}: REQUIERE EXCEPCIÓN O AJUSTE DE PLAZO`;
+        textoDictamen.innerText = `Supera el techo más conservador (${fmtMoney(montoRecomendado)}). Se sugiere ampliar plazo, incluir Balloon o reducir monto en ${fmtMoney(montoSolicitado - montoRecomendado)}.`;
+      } else {
+        cardDictamen.className = "glass-card rounded-2xl p-5 border-2 border-red-500/60 flex flex-col md:flex-row items-center justify-between gap-4";
+        iconoDictamen.className = "w-12 h-12 rounded-2xl bg-red-500/20 border border-red-400 text-red-300 flex items-center justify-center text-2xl shrink-0";
+        iconoDictamen.innerHTML = '<i class="fas fa-times-circle"></i>';
+        tituloDictamen.innerText = `SOLICITUD POR ${fmtMoney(montoSolicitado)}: EXCEDE CAPACIDAD FINANCIERA`;
+        textoDictamen.innerText = `Rompe simultáneamente los límites de Apalancamiento (${levSolicitado.toFixed(2)}x) y Cobertura DSCR (${dscrSolicitado.toFixed(2)}x). Máximo sugerido: ${fmtMoney(montoRecomendado)}.`;
+      }
+
+      // Renderizar Tabla de Covenants
+      const tbody = document.getElementById('tbody_covenants');
+      const okLev = levSolicitado <= levMax + 0.01;
+      const okDscr = dscrSolicitado >= dscrMin - 0.01;
+
+      tbody.innerHTML = `
+        <tr>
+          <td class="p-3 font-sans font-bold text-white">Deuda Financiera Neta ($)</td>
+          <td class="p-3 text-center text-slate-400">Máx ${fmtMoney(deudaNetaMaximaPermitida)}</td>
+          <td class="p-3 text-right">${fmtMoney(deudaNetaActual)}</td>
+          <td class="p-3 text-right font-bold text-amber-300">${fmtMoney(deudaNetaActual + montoSolicitado)}</td>
+          <td class="p-3 text-right font-bold text-emerald-300">${fmtMoney(deudaNetaActual + montoRecomendado)}</td>
+          <td class="p-3 text-center">${okLev ? '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-bold">CUMPLE</span>' : '<span class="px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-[10px] font-bold">EXCEDE</span>'}</td>
+        </tr>
+        <tr>
+          <td class="p-3 font-sans font-bold text-white">Apalancamiento (Deuda Neta / EBITDA)</td>
+          <td class="p-3 text-center font-bold text-cyan-300">&lt;= ${levMax.toFixed(2)}x</td>
+          <td class="p-3 text-right">${fmtRatio(levActual)}</td>
+          <td class="p-3 text-right font-bold ${okLev ? 'text-emerald-300' : 'text-red-400'}">${fmtRatio(levSolicitado)}</td>
+          <td class="p-3 text-right font-bold text-emerald-300">${fmtRatio(levMaximo)}</td>
+          <td class="p-3 text-center">${okLev ? '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-bold">CUMPLE</span>' : '<span class="px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-[10px] font-bold">ROMPE COVENANT</span>'}</td>
+        </tr>
+        <tr>
+          <td class="p-3 font-sans font-bold text-white">Cobertura Servicio Deuda (RCSD / DSCR)</td>
+          <td class="p-3 text-center font-bold text-emerald-300">&gt;= ${dscrMin.toFixed(2)}x</td>
+          <td class="p-3 text-right">${servicioActual > 0 ? fmtRatio(dscrActual) : 'Sin Deuda'}</td>
+          <td class="p-3 text-right font-bold ${okDscr ? 'text-emerald-300' : 'text-red-400'}">${fmtRatio(dscrSolicitado)}</td>
+          <td class="p-3 text-right font-bold text-emerald-300">${fmtRatio(dscrMaximo)}</td>
+          <td class="p-3 text-center">${okDscr ? '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded text-[10px] font-bold">CUMPLE</span>' : '<span class="px-2 py-0.5 bg-red-500/20 text-red-300 rounded text-[10px] font-bold">FLUJO INSUFICIENTE</span>'}</td>
+        </tr>
+        <tr>
+          <td class="p-3 font-sans font-bold text-white">Servicio de Deuda Anual Total (P&I)</td>
+          <td class="p-3 text-center text-slate-400">Máx ${fmtMoney(servicioDeudaTotalMax)}</td>
+          <td class="p-3 text-right">${fmtMoney(servicioActual)}</td>
+          <td class="p-3 text-right font-bold text-amber-300">${fmtMoney(servSolicitado)}</td>
+          <td class="p-3 text-right font-bold text-emerald-300">${fmtMoney(servMaximo)}</td>
+          <td class="p-3 text-center"><span class="text-[10px] text-slate-400">Margen EBITDA: ${margenEbitda.toFixed(1)}%</span></td>
+        </tr>
+      `;
+
+      // Mezcla sugerida CP vs LP
+      const baseMezcla = montoRecomendado > 0 ? montoRecomendado : montoSolicitado;
+      document.getElementById('lbl_base_mezcla').innerText = fmtMoney(baseMezcla);
+      document.getElementById('lbl_sug_cp').innerText = fmtMoney(baseMezcla * 0.30);
+      document.getElementById('lbl_sug_lp').innerText = fmtMoney(baseMezcla * 0.70);
+      document.getElementById('lbl_plazo_sug').innerText = plazoAnos;
+      document.getElementById('lbl_nuevo_servicio_anual').innerText = fmtMoney(montoSolicitado * constanteAnualDeuda) + ' / año';
+
+      // Guardar estado para exportaciones
+      estadoCalculoActual = {
+        empresa: document.getElementById('nombre_empresa').value,
+        ebitda, deudaNetaActual, capacidadPorBalance, capacidadPorFlujo, montoRecomendado, montoSolicitado,
+        levMax, dscrMin, levActual, levSolicitado, dscrSolicitado, plazoAnos, tasaAnual: tasaAnual * 100
+      };
+
+      actualizarGraficoSizing(deudaNetaActual, capacidadPorBalance, capacidadPorFlujo, montoRecomendado, montoSolicitado);
+    }
+
+    function actualizarGraficoSizing(deudaNetaActual, capBalance, capFlujo, recomendado, solicitado) {
+      const ctx = document.getElementById('chartDebtSizing').getContext('2d');
+      if (chartSizingInstance) chartSizingInstance.destroy();
+
+      chartSizingInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Deuda Neta Actual', 'Cupo por Balance', 'Cupo por Flujo (DSCR)', 'Límite BBVA', 'Monto Solicitado'],
+          datasets: [{
+            label: 'Miles ($)',
+            data: [deudaNetaActual, capBalance, capFlujo, recomendado, solicitado],
+            backgroundColor: [
+              'rgba(148, 163, 184, 0.6)',
+              'rgba(0, 212, 255, 0.65)',
+              'rgba(168, 85, 247, 0.65)',
+              'rgba(16, 185, 129, 0.85)',
+              'rgba(245, 158, 11, 0.8)'
+            ],
+            borderColor: [
+              '#94a3b8',
+              '#00d4ff',
+              '#a855f7',
+              '#10b981',
+              '#f59e0b'
+            ],
+            borderWidth: 2,
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: { ticks: { color: '#cbd5e1', font: { size: 10, weight: 'bold' } } },
+            y: {
+              ticks: {
+                color: '#94a3b8',
+                callback: v => '$' + (v / 1000).toFixed(0) + 'k'
+              },
+              grid: { color: 'rgba(0, 212, 255, 0.1)' }
+            }
+          }
+        }
+      });
+    }
+
+    // ABRIR EN TABLA DE AMORTIZACIÓN LINEAL
+    function enviarASimuladorAmortizacion() {
+      window.open('AMORTIZACION%20LINEAL.html', '_blank');
+    }
+
+    // EXPORTAR A EXCEL
+    async function exportarExcelSizing() {
+      const d = estadoCalculoActual;
+      const wb = new ExcelJS.Workbook();
+      const ws = wb.addWorksheet('Debt Sizing BBVA');
+
+      ws.mergeCells('A1:E1');
+      ws.getCell('A1').value = 'DICTAMEN DE CAPACIDAD MÁXIMA DE ENDEUDAMIENTO (DEBT SIZING)';
+      ws.getCell('A1').font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+      ws.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF072146' } };
+      ws.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
+      ws.getRow(1).height = 30;
+
+      const filas = [
+        ['Empresa / Razón Social:', d.empresa, 'Fecha Evaluación:', new Date().toLocaleDateString('es-MX')],
+        ['EBITDA / UAFIRDA Base:', d.ebitda, 'Deuda Financiera Neta Actual:', d.deudaNetaActual],
+        ['Covenant Apalancamiento Máx:', d.levMax + 'x', 'Covenant DSCR Mínimo:', d.dscrMin + 'x'],
+        ['Capacidad Adicional por Balance:', d.capacidadPorBalance, 'Capacidad Adicional por Flujo:', d.capacidadPorFlujo],
+        ['LÍMITE MÁXIMO RECOMENDADO BBVA:', d.montoRecomendado, 'Monto Solicitado Evaluado:', d.montoSolicitado]
+      ];
+
+      filas.forEach((f, idx) => {
+        const r = ws.getRow(3 + idx);
+        r.getCell(1).value = f[0]; r.getCell(1).font = { bold: true };
+        r.getCell(2).value = f[1];
+        r.getCell(3).value = f[2]; r.getCell(3).font = { bold: true };
+        r.getCell(4).value = f[3];
+        if (typeof f[1] === 'number') r.getCell(2).numFmt = '"$"#,##0.00';
+        if (typeof f[3] === 'number') r.getCell(4).numFmt = '"$"#,##0.00';
+      });
+
+      ws.columns.forEach(c => c.width = 28);
+      const buf = await wb.xlsx.writeBuffer();
+      const blob = new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Debt_Sizing_${d.empresa.replace(/\s+/g, '_')}.xlsx`;
+      a.click();
+    }
+
+    // EXPORTAR DICTAMEN EJECUTIVO EN PDF
+    function exportarPDFSizing() {
+      document.getElementById('pdf_fecha').innerText = new Date().toLocaleDateString('es-MX');
+      document.getElementById('pdf_cliente').innerText = document.getElementById('nombre_empresa').value;
+      document.getElementById('pdf_cap_lev').innerText = document.getElementById('kpi_cap_apalancamiento').innerText;
+      document.getElementById('pdf_sub_lev').innerText = document.getElementById('sub_cap_apalancamiento').innerText;
+      document.getElementById('pdf_cap_flujo').innerText = document.getElementById('kpi_cap_flujo').innerText;
+      document.getElementById('pdf_sub_flujo').innerText = document.getElementById('sub_cap_flujo').innerText;
+      document.getElementById('pdf_cap_rec').innerText = document.getElementById('kpi_monto_recomendado').innerText;
+
+      document.getElementById('pdf_dictamen_titulo').innerText = document.getElementById('titulo_dictamen').innerText;
+      document.getElementById('pdf_dictamen_texto').innerText = document.getElementById('texto_dictamen').innerText;
+
+      document.getElementById('pdf_tabla_covenants').innerHTML = document.querySelector('#tbody_covenants').parentElement.innerHTML;
+
+      const el = document.getElementById('pdfPlantillaSizing');
+      el.style.display = 'block';
+
+      html2pdf().set({
+        margin: [0.4, 0.4, 0.4, 0.4],
+        filename: `Dictamen_Debt_Sizing_${document.getElementById('nombre_empresa').value}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'landscape' }
+      }).from(el).save().then(() => {
+        el.style.display = 'none';
+      });
+    }
+
+    window.onload = function() {
+      calcularDebtSizing();
+    };
+  </script>
+</body>
+</html>
